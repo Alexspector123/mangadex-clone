@@ -43,9 +43,9 @@ const SideBar = ({ children }) => {
               to={item.path} 
               key={index} 
               activeclassName= 'bg-gray-300'
-              className={`flex items-center px-2.5 py-1 gap-[15px] transition-all duration-500 hover:bg-gray-300`}>
+              className='flex items-center px-2.5 py-1 gap-[15px] transition-all duration-500 hover:bg-gray-300'>
                 <div className='text-[20px]'>{item.icon ? item.icon : ""}</div>
-                <div className='text-[20px]'>{item.name}</div>
+                <div className={`text-[20px] ${item.icon ? 'font-bold' : ''}`}>{item.name}</div>
               </NavLink>
               )
             )
