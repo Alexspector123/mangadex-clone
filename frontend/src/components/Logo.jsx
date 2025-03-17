@@ -14,7 +14,7 @@ const Logo = () => {
     <div
     onClick={handleClick}
     className='flex text-3xl cursor-pointer'>
-        <img className='mx-1' src={logo} alt="logo" />
+        <img className='ml-4 mr-1' src={logo} alt="logo" />
         <img src={wordmark} alt="wordmark" />
     </div>
   )

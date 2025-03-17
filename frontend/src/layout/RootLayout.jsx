@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from "../components/Navbar.jsx";
-import SideBar from "../components/SideBar";
 import { Outlet } from 'react-router-dom';
+import SideBar from '../components/SideBar.jsx';
 
 const RootLayout = () => {
-  return (
-    <div>
-      <Navbar />
-      <SideBar>
-        <Outlet />
-      </SideBar>
-    </div>
-  )
-}
+  const [sidebar, setSidebar] = useState(true);
 
-export default RootLayout
+  return (
+    <div className="flex h-screen">
+      {sidebar && (
+          <SideBar closeSidebar={() => setSidebar(false)} />
+      )}
+
+      <div className={`flex flex-col w-full ${sidebar ? "ml-65" : "ml-0"}`}>
+        <Navbar className='sticky' showSidebar={() => setSidebar(!sidebar)} sidebar={sidebar} />
+        <main className="p-5">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default RootLayout;
