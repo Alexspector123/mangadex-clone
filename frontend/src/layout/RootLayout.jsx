@@ -12,11 +12,9 @@ const RootLayout = () => {
           <SideBar closeSidebar={() => setSidebar(false)} />
       )}
 
-      <div className={`flex flex-col w-full ${sidebar ? "ml-65" : "ml-0"}`}>
-        <Navbar className='sticky' showSidebar={() => setSidebar(!sidebar)} sidebar={sidebar} />
-        <main className="p-5">
+      <div className={`flex flex-col w-full transition-all duration-200 ${sidebar ? "ml-65" : "ml-0"}`}>
+        <Navbar showSidebar={() => setSidebar(!sidebar)} sidebar={sidebar} />
           <Outlet />
-        </main>
       </div>
     </div>
   );

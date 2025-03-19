@@ -13,6 +13,7 @@ import FollowsLayout from "./layout/FollowsLayout";
 import MDLists from "./pages/Follows/MDLists";
 import MyGroup from "./pages/Follows/MyGroup";
 import History from "./pages/Follows/History";
+import Manga from "./pages/Mangas/Manga";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
         <Route path="feed" element={<Updates />} />
         <Route path="follows" element={<Library />} />
       </Route>
+      <Route path="manga" element={<Manga />}/>
       <Route path="*" element={<ErrorPage />} />
     </Route>
   )

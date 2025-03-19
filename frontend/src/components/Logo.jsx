@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from "../assets/mangadex-logo.svg";
 import wordmark from "../assets/mangadex-wordmark.svg";
 
-const Logo = () => {
+const Logo = ({ isScrolled, applyFilter }) => {
     const navigate = useNavigate();
 
     const handleClick = () => {
@@ -15,7 +15,7 @@ const Logo = () => {
     onClick={handleClick}
     className='flex text-3xl cursor-pointer'>
         <img className='ml-4 mr-1' src={logo} alt="logo" />
-        <img src={wordmark} alt="wordmark" />
+        <img className={`transition-all duration-300 ${applyFilter ? (isScrolled ? 'invert-0' : 'invert') : ''}`} src={wordmark} alt="wordmark" />
     </div>
   )
 }
