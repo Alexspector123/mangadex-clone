@@ -8,13 +8,13 @@ const RootLayout = () => {
 
   return (
     <div className="flex h-screen">
-      {sidebar && (
-          <SideBar closeSidebar={() => setSidebar(false)} />
-      )}
+      <div className={`transition-all duration-200 ${sidebar ? "w-[260px]" : "w-0"} overflow-hidden`}>
+        {sidebar && <SideBar closeSidebar={() => setSidebar(false)} />}
+      </div>
 
-      <div className={`flex flex-col w-full transition-all duration-200 ${sidebar ? "ml-65" : "ml-0"}`}>
+      <div className={`flex flex-col transition-all duration-200 ${sidebar ? "w-[calc(100%-260px)] ml-[260px]" : "w-full ml-0"}`}>
         <Navbar showSidebar={() => setSidebar(!sidebar)} sidebar={sidebar} />
-          <Outlet />
+        <Outlet />
       </div>
     </div>
   );

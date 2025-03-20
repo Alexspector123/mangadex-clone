@@ -1,7 +1,7 @@
 import ReactDOM from "react-dom/client";
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from "react-router-dom";
 import RootLayout from "./layout/RootLayout";
-import HomePage from "./pages/homepage";
+import HomePage from "./pages/HomePage/HomePage";
 import ErrorPage from "./pages/ErrorPage";
 import TitlesLayout from "./layout/TitlesLayout";
 import RecentlyAdded from "./pages/Titles/RecentlyAdded";
