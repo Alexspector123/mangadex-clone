@@ -15,7 +15,7 @@ const Logo = ({ isScrolled, applyFilter }) => {
     onClick={handleClick}
     className='flex text-3xl cursor-pointer'>
         <img className='ml-4 mr-1' src={logo} alt="logo" />
-        <img className={`transition-all duration-300 ${applyFilter ? (isScrolled ? 'invert-0' : 'invert') : ''}`} src={wordmark} alt="wordmark" />
+        <img className={`transition-all duration-300 ${applyFilter ? (!isScrolled ? 'invert-0' : 'invert') : ''}`} src={wordmark} alt="wordmark" />
     </div>
   )
 }

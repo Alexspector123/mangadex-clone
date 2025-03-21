@@ -15,31 +15,31 @@ const SlideCard = ({ mangaData }) => {
       }, [mangaData]);
 
   return (
-    <div className='p-4 mt-auto w-full mx-auto flex gap-3 h-[85%] xl:max-w-[1440px]'>
-    <img className='min-h-[160px] h-[112px] rounded-sm md:h-72' src={ mangaData.Cover } alt="" />
-    <div className='h-full mt-auto flex flex-col gap-2'>
-      <h3 className='font-poppins font-bold text-[20px] h-25 xl:text-4xl md:h-auto'>{ mangaData.Name }</h3>
-      {mangaData.tag ? (
-        <div>
-          {mangaData.tag.map((tag, index) => (
-            <span key={index} className='bg-slate-100 font-bold px-2 m-1 text-[10px] rounded-sm items-center'>{tag}</span>
-          ))}
-        </div>
-      )
-      : null}
-      {mangaData.Description ? (
-        <div className='text-sm font-poppins h-[200px] hidden md:block overflow-auto scrollbar-hide'>
-        {mangaData.Description.split("\n").map((line, index) => (
-            <React.Fragment key={index}>
-                {line}
-                <br />
-            </React.Fragment>
+    <div className='h-full relative flex gap-4'>
+      <img className='flex items-start relative mb-auto w-full h-full aspect-[7/10] !h-[10rem] md:!h-full !w-auto object-top object-cover rounded sm:shadow-lg bg-transparent' src={ mangaData.Cover } alt="" />
+      <div className='mt-auto grid grid-rows-[auto_auto_1fr_auto] gap-6 sm:gap-2 h-full min-h-0'>
+        <h3 className='font-poppins font-bold text-xl line-clamp-5 sm:line-clamp-2 lg:text-4xl overflow-hidden'>{ mangaData.Name }</h3>
+        {mangaData.tag ? (
+          <div className='flex h-6'>
+            {mangaData.tag.map((tag, index) => (
+              <span key={index} className='bg-slate-100 font-bold px-2 m-1 text-[10px] rounded-sm items-center'>{tag}</span>
             ))}
-        </div>
-      ) : null}
-        <span>{creator.join(", ")}</span>
+          </div>
+        )
+        : null}
+        {mangaData.Description ? (
+          <div className='text-sm flex-grow max-h-[200px] font-poppins hidden md:block overflow-auto scrollbar-hide'>
+          {mangaData.Description.split("\n").map((line, index) => (
+              <React.Fragment key={index}>
+                  {line}
+                  <br />
+              </React.Fragment>
+              ))}
+          </div>
+        ) : null}
+          <div className='self-end'>{creator.join(", ")}</div>
+      </div>
     </div>
-  </div>
   )
 }
 
