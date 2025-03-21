@@ -30,8 +30,8 @@ const router = createBrowserRouter(
         <Route path="random" element={<Random />} />
         <Route path="feed" element={<Updates />} />
         <Route path="follows" element={<Library />} />
+        <Route path=":id" element= {<Manga/>} />
       </Route>
-      <Route path="manga" element={<Manga />}/>
       <Route path="*" element={<ErrorPage />} />
     </Route>
   )
