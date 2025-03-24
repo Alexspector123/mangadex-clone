@@ -9,7 +9,7 @@ const SideBar = ({ closeSidebar }) => {
     <div className='flex w-65 bg-gray-200 fixed h-full'>
         <div className='bg-gray-200 w-80'>
           <div className='flex items-center px-1 py-3'>
-            <Logo applyFilter={false} />
+            <Logo applyFilter={true} />
             <div className='flex text-2xl ml-10 cursor-pointer'>
               <IoMdClose onClick={closeSidebar}/>
             </div>

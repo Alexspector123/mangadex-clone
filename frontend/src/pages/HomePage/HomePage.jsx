@@ -13,7 +13,7 @@ const HomePage = () => {
   const swiperRef = useRef();
   return (
     <div>
-      <div className='relative h-[324px] md:h-[440px]'>
+      <div className='relative h-[324px] md:h-[440px] z-[-2]'>
         <Swiper
           spaceBetween={30}
           centeredSlides={true}
@@ -44,14 +44,11 @@ const HomePage = () => {
             </SwiperSlide>
           )}
         </Swiper>
-        <div className=''>
-
         <div className="absolute bottom-0 right-5 left-5 flex justify-between gap-5 text-xl z-10 md:justify-normal md:left-auto md:bottom-14 lg:text-2xl lg:bottom-4">
           <IoIosArrowBack className='cursor-pointer transition-all duration-200 w-8 h-8 p-1 hover:bg-slate-300 hover:rounded-full' onClick={() => swiperRef.current?.slidePrev()} />
           <IoIosArrowForward className='cursor-pointer transition-all duration-200 w-8 h-8 p-1 hover:bg-slate-300 hover:rounded-full' onClick={() => swiperRef.current?.slideNext()} />
         </div>
-        <h2 className='absolute top-13 sm:top-15 left-1 z-10 min-[1448px]:left-10 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan px-4'>Popular New Titles</h2>
-        </div>
+        <h2 className='absolute top-13 sm:top-15 left-1 z-2 min-[1448px]:left-10 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan px-4'>Popular New Titles</h2>
       </div>
 
       <div className="p-4 my-8 min-[1448px]:mx-auto">

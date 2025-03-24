@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMangaData } from '../services/mangaService';
+import { fetchMangaById, fetchMangaByTitle } from '../services/mangaService';
 
 const useFetch = (params) => {
-
     const [mangaData, setMangaData] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -11,22 +10,29 @@ const useFetch = (params) => {
         const loadData = async () => {
             try {
                 setIsLoading(true);
-                const data = await fetchMangaData(params);
-                setMangaData(data);
+                let data;
+
+                if (typeof params === "string") {
+                    data = await fetchMangaById(params);
+                    setMangaData(data ? [data] : []);
+                } else if (params && params.title) {
+                    data = await fetchMangaByTitle(params.title, params.limit || 10);
+                    setMangaData(data);
+                }
+
             } catch (error) {
                 setError(error.message);
             } finally {
                 setIsLoading(false);
             }
-        }
-        if(params){
+        };
+
+        if (params) {
             loadData();
         }
-    }, [params])
-    
-  return (
-    {mangaData, error, isLoading}
-  )
-}
+    }, [params]);
 
-export default useFetch
+    return { mangaData, error, isLoading };
+};
+
+export default useFetch;
