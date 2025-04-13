@@ -9,7 +9,7 @@ export const fetchMangaById = async (id, retryCount = 0) => {
         console.log(`Fetching Manga by ID: ${fullUrl}`);
 
         const response = await axios.get(`${proxyUrl}${encodeURIComponent(fullUrl)}`);
-        return response.data.data ?? null; // Return single object or null
+        return response.data.data ?? null;
     } catch (error) {
         return handleRequestError(error, () => fetchMangaById(id, retryCount + 1), retryCount);
     }

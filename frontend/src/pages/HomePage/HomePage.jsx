@@ -5,6 +5,7 @@ import SlideCard from './SlideCard.jsx';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
+import { FiArrowRight } from "react-icons/fi";
 
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -13,7 +14,7 @@ const HomePage = () => {
   const swiperRef = useRef();
   return (
     <div>
-      <div className='relative h-[324px] md:h-[440px] z-[-2]'>
+      <div className='relative h-[324px] md:h-[440px]'>
         <Swiper
           spaceBetween={30}
           centeredSlides={true}
@@ -51,9 +52,26 @@ const HomePage = () => {
         <h2 className='absolute top-13 sm:top-15 left-1 z-2 min-[1448px]:left-10 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan px-4'>Popular New Titles</h2>
       </div>
 
-      <div className="p-4 my-8 min-[1448px]:mx-auto">
+      <div className="px-4 my-8 max-w-[1440px] mx-auto">
         <div>
-          <h2>Lastest Updates</h2>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='z-2 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan'>Lastest Updates</h2>
+            <FiArrowRight className='z-2 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan' />
+          </div>
+        </div>
+
+        <div>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='z-2 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan'>Self-Published</h2>
+            <FiArrowRight className='z-2 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan' />
+          </div>
+        </div>
+
+        <div>
+          <div className='flex justify-between items-center mb-4'>
+            <h2 className='z-2 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan'>Recently Added</h2>
+            <FiArrowRight className='z-2 min-[1448px]:text-4xl font-semibold sm:text-2xl text-xl font-spartan' />
+          </div>
         </div>
       </div>
     </div>

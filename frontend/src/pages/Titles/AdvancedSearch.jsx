@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import useFetch from "../../hooks/useFetch";
+import useFetchbyTitle from "../../hooks/useFetchbyTitle";
 
 const AdvancedSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [queryParams, setQueryParams] = useState(null);
-  const { mangaData, error, isLoading } = useFetch(queryParams);
+  const { mangaData, error, isLoading } = useFetchbyTitle(queryParams);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -14,7 +14,7 @@ const AdvancedSearch = () => {
   };
 
   return (
-    <div>
+    <div className="relative z-10 px-4 mt-[68px] mb-auto">
       <h2>Advanced Manga Search</h2>
 
       <form onSubmit={handleSearch}>
