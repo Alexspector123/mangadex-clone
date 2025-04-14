@@ -1,13 +1,12 @@
 import axios from "axios";
 
-const apiUrl = "https://api.mangadex.org/manga";
+const apiUrl = "https://api.mangadex.org";
 const proxyUrl = `http://localhost:5000/proxy?url=`;
 
+// Manga section
 export const fetchMangaById = async (id, retryCount = 0) => {
     try {
-        const fullUrl = `${apiUrl}/${id}`;
-        console.log(`Fetching Manga by ID: ${fullUrl}`);
-
+        const fullUrl = `${apiUrl}/manga/${id}`;
         const response = await axios.get(`${proxyUrl}${encodeURIComponent(fullUrl)}`);
         return response.data.data ?? null;
     } catch (error) {
@@ -15,12 +14,11 @@ export const fetchMangaById = async (id, retryCount = 0) => {
     }
 };
 
+// Search/Advanced Search section
 export const fetchMangaByTitle = async (title, limit = 10, retryCount = 0) => {
     try {
         const queryParams = new URLSearchParams({ title, limit });
-        const fullUrl = `${apiUrl}?${queryParams.toString()}`;
-        console.log(`Searching Manga: ${fullUrl}`);
-
+        const fullUrl = `${apiUrl}/manga?${queryParams.toString()}`;
         const response = await axios.get(`${proxyUrl}${encodeURIComponent(fullUrl)}`);
         return response.data.data ?? [];
     } catch (error) {

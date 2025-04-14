@@ -26,16 +26,15 @@ app.get("/proxy", async (req, res) => {
     return res.status(400).json({ error: "URL parameter is required" });
   }
 
-  console.log(`Proxying request to: ${apiUrl}`);
-
   try {
     const response = await axios.get(apiUrl, {
       headers: {
         "User-Agent": "MyMangaApp/1.0 (http://localhost:5173)",
       },
+      responseType: "stream",
     });
-
-    res.status(response.status).json(response.data);
+    res.setHeader('Content-Type', response.headers['content-type']);
+    response.data.pipe(res);
   } catch (error) {
     console.error("Proxy server error:", error.message);
     res.status(500).json({ error: "Proxy server error", details: error.message });

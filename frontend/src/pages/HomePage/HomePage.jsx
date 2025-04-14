@@ -1,6 +1,6 @@
-import React, { useRef } from 'react'
-import { mangaData } from '../../mockData/mangaData.js';
+import React, { useRef, useState, useEffect } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { useFetchList } from '../../hooks/useFetchList.jsx';
 import SlideCard from './SlideCard.jsx';
 import { Autoplay, Navigation } from 'swiper/modules';
 import { IoIosArrowBack } from "react-icons/io";
@@ -11,6 +11,32 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 
 const HomePage = () => {
+  const [limit, setLimit] = useState(10);
+  const [order, setOrder] = useState({followedCount: 'desc'});
+  const [queryParams, setQueryParams] = useState(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    params.append('limit', limit);
+    Object.keys(order).forEach((key) => {
+      params.append(`order[${key}]`, order[key]);
+    });
+    setQueryParams(params);
+  }, [limit, order]);
+
+  const { mangaData, error, isLoading } = useFetchList(queryParams);
+  const { mangaIDs, mangaTitles, coverUrls, mangaAuthors, mangaDescriptions } = mangaData || {};
+  if(error) {
+    return <div>{error}</div>;
+  }
+
+  function sendData(index) {
+    sessionStorage.setItem("coverUrl", coverUrls[index]);
+    sessionStorage.setItem("mangaTitle", mangaTitles[index]);
+    sessionStorage.setItem("mangaDescription", mangaDescriptions[index]);
+    sessionStorage.setItem("mangaAuthor", mangaAuthors[index]);
+  };
+
   const swiperRef = useRef();
   return (
     <div>
@@ -18,7 +44,7 @@ const HomePage = () => {
         <Swiper
           spaceBetween={30}
           centeredSlides={true}
-          loop={true}
+          loop={coverUrls?.length > 1}
           autoplay={{ delay: 3000, disableOnInteraction: false }}
           modules={[Autoplay, Navigation]}
           onBeforeInit={(swiper) => {
@@ -26,19 +52,20 @@ const HomePage = () => {
           }}
           className="mySwiper"
         >
-          {mangaData.map((mangaData, index) =>
-            <SwiperSlide key={index}>
+          {coverUrls?.map((url, index) =>
+            <SwiperSlide key={index} onClick={() => sendData(index)}>
+              <a href={`/info?id=${mangaIDs[index]}`}></a>
               <div className='relative'>
                 <img
                   className="object-cover object-[0%_25%] h-80 md:h-[400px] xl:h-[440px] w-full"
-                  src= { mangaData.Cover }
+                  src= {coverUrls[index]}
                 />
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-white via-white/50 to-transparent"></div>
 
                 <div className="absolute bottom-0 left-0 right-0 h-full flex justify-center md:items-center">
                   <div className='p-4 mb-6 md:mb-0 md:py-4 md:px-4 grid grid-rows-[1fr_1rem] md:grid-rows-1 gap-2 md:h-[77%] sm:h-[65%] h-[70%] mt-auto xl:max-w-[1440px] w-full mx-auto'>
-                    <SlideCard mangaData={mangaData} />
+                    <SlideCard mangaAuthors={mangaAuthors} mangaTitles={mangaTitles[index]} mangaDescriptions={mangaDescriptions[index]} coverUrls={coverUrls[index]}/>
                   </div>
                 </div>
               </div>

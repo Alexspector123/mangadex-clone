@@ -6,7 +6,7 @@ import Logo from './Logo';
 
 const SideBar = ({ closeSidebar }) => {
   return (
-    <div className='flex w-65 bg-gray-200 fixed h-full'>
+    <div className='flex w-65 bg-gray-200 fixed h-screen scrollbar-hide overflow-y-auto'>
         <div className='bg-gray-200 w-80'>
           <div className='flex items-center px-1 py-3'>
             <Logo applyFilter={true} />
