@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Navbar from "../components/Navbar.jsx";
 import { Outlet } from 'react-router-dom';
 import SideBar from '../components/SideBar.jsx';
 
 const RootLayout = () => {
   const [sidebar, setSidebar] = useState(true);
+  const contentRef = useRef(null);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -15,9 +16,11 @@ const RootLayout = () => {
         {sidebar && <SideBar closeSidebar={() => setSidebar(false)} />}
       </div>
 
-      <div className={`flex flex-col transition-all duration-200 w-full overflow-y-auto h-screen
+      <div
+      ref={contentRef} 
+      className={`flex flex-col transition-all duration-200 w-full overflow-y-auto h-screen
   ${sidebar ? "lg:w-[calc(100%-260px)]" : "lg:w-full"}`}>
-        <Navbar showSidebar={() => setSidebar(!sidebar)} sidebar={sidebar} />
+        <Navbar showSidebar={() => setSidebar(!sidebar)} sidebar={sidebar} scrollContainer={contentRef} />
         <Outlet />
       </div>
     </div>

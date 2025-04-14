@@ -2,15 +2,9 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 
 const SlideCard = ({ mangaTitles, coverUrls, mangaAuthors, mangaDescriptions }) => {
-    const [creator, setCreator] = useState([]);
-
-    useEffect(() => {
-      if (mangaAuthors && mangaAuthors.length > 0) {
-        const names = mangaAuthors.map(mangaAuthors => mangaAuthors.name);
-        const uniqueNames = [...new Set(names)];
-        setCreator(uniqueNames);
-      }
-    }, [mangaAuthors]);
+    const creator = Array.isArray(mangaAuthors)
+    ? mangaAuthors.map((a) => a.name).join(", ")
+    : mangaAuthors;
 
   return (
     <div className='h-full relative flex gap-4'>
@@ -35,7 +29,7 @@ const SlideCard = ({ mangaTitles, coverUrls, mangaAuthors, mangaDescriptions }) 
               ))}
           </div>
         ) : null}
-          <div className='self-end'>{creator.join(", ")}</div>
+          <div className='self-end'>{creator}</div>
       </div>
     </div>
   )

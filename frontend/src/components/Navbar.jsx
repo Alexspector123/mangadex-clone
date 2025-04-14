@@ -5,20 +5,27 @@ import { FiUser } from "react-icons/fi";
 import { FaBars } from "react-icons/fa6";
 import Logo from './Logo';
 
-const Navbar = ({ showSidebar, sidebar }) => {
+const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      if (scrollContainer.current) {
+        setIsScrolled(scrollContainer.current.scrollTop > 0);
+      }
     };
-  
-    handleScroll();
-  
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+
+    const container = scrollContainer.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll);
+      handleScroll();
+    }
+
+    return () => {
+      if (container) container.removeEventListener("scroll", handleScroll);
+    };
+  }, [scrollContainer]);
 
   const isMangaPage = /^\/titles\/[^/]+$/.test(location.pathname);
 

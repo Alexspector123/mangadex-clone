@@ -45,11 +45,22 @@ export const useFetchList = (params) => {
                     return null;
                 })
             );
+            //Get artist 
+            const artists = await Promise.all(
+                response.data.data.map(async (manga) => {
+                    const artistRel = manga.relationships.find((rel) => rel.type === 'artist');
+                    if(artistRel){
+                        const artistResp = await axios.get(`${proxyUrl}${encodeURIComponent(`https://api.mangadex.org/author/${artistRel.id}`)}`);
+                        return artistResp.data.data.attributes.name;
+                    }
+                    return null;
+                })
+            );
             //Get description
             const descriptions = response.data.data.map((manga) => {
                 const desc = manga.attributes.description;
                 const firstDesKey = Object.keys(desc)[0];
-                return desc[firstDesKey];
+                return (manga.attributes.description.en ? manga.attributes.description.en : desc[firstDesKey]);
             });
 
             setMangaData({
