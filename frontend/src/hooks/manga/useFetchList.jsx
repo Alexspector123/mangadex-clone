@@ -26,14 +26,17 @@ export const useFetchList = (params) => {
             //Get cover art
             const covers = await Promise.all(
                 response.data.data.map(async (manga) => {
-                    const coverArtRel = manga.relationships.find((rel) => rel.type === 'cover_art');
-                    if(coverArtRel){
-                        const coverResp = await axios.get(`${proxyUrl}${encodeURIComponent(`https://api.mangadex.org/cover/${coverArtRel.id}`)}`);
-                        const coverFileName = coverResp.data.data.attributes.fileName;
-                        return `${proxyUrl}${encodeURIComponent(`https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}`)}`;
-                    }
+                  const coverArtRel = manga.relationships.find((rel) => rel.type === "cover_art");
+                  if (coverArtRel) {
+                    const coverResp = await axios.get(`${proxyUrl}${encodeURIComponent(`https://api.mangadex.org/cover/${coverArtRel.id}`)}`);
+                    const coverFileName = coverResp.data.data.attributes.fileName;
+                    return `${proxyUrl}${encodeURIComponent(
+                      `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}`
+                    )}`;
+                  }
+                  return null;
                 })
-            );
+              );
             //Get author 
             const authors = await Promise.all(
                 response.data.data.map(async (manga) => {
@@ -71,12 +74,21 @@ export const useFetchList = (params) => {
                 mangaDescriptions: descriptions,
             });
         } catch (error) {
-            if (axios.isAxiosError(error) && error.response?.status === 429 && retryCount < 5) {
-                console.warn(`Rate limit hit! Retrying in ${(retryCount + 1) * 2000}ms...`);
-                await new Promise((resolve) => setTimeout(resolve, (retryCount + 1) * 2000));
-                return retryFunction();
-            }
-            throw new Error(`Error fetching manga: ${error.message}`);
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 429 && retryCount < 5) {
+                    const retryAfter = (retryCount + 1) * 2000;
+                    setTimeout(() => fetchMangaList(retryCount + 1), retryAfter);
+                  } else if (error.response?.status === 403) {
+                    setError(
+                      "Access forbidden: Ensure you have the necessary permissions."
+                    );
+                  } else {
+                    setError("Error fetching manga.");
+                  }
+                } else {
+                  setError("An unknown error occurred.");
+                }
+                console.error("Error fetching manga:", error);
         } finally {
             setIsLoading(false);
         }
