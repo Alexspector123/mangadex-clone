@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { useEffect, useState } from 'react';
-import { mangaList } from '../mockData/mangaList';
+import { mangaList } from '../../mockData/mangaList';
 
 export const useFetchList = (params) => {
     const apiUrl = 'https://api.mangadex.org/manga';

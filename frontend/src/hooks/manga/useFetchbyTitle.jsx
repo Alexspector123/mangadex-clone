@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchMangaByTitle } from '../services/mangaService';
+import { fetchMangaByTitle } from '../../services/mangaService';
 
 const useFetchbyTitle = (params) => {
     const [mangaData, setMangaData] = useState([]);

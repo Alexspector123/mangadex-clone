@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import useFetchbyTitle from "../../hooks/useFetchbyTitle";
+import useFetchbyTitle from "../../hooks/manga/useFetchbyTitle";
 
 const AdvancedSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,7 +27,6 @@ const AdvancedSearch = () => {
         <button type="submit">Search</button>
       </form>
 
-      {isLoading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {mangaData.length > 0 ? (

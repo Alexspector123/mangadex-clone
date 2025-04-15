@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import useFetchList from '../../hooks/useFetchList';
-import useLatestChapters from '../../hooks/useLatestChapters';
+import useFetchList from '../../hooks/manga/useFetchList';
+import useLatestChapters from '../../hooks/chapter/useLatestChapters';
 
 import { FiArrowRight } from "react-icons/fi";
 
@@ -8,7 +8,6 @@ const Latest = () => {
     const { chapters, loading, error } = useLatestChapters(18);
     const { mangaID, mangaTitle, coverUrl} = chapters || {};
 
-    if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     function sendData(index) {
@@ -85,8 +84,10 @@ const Latest = () => {
                                 <div className='flex flex-grow flex-col justify-evenly'>
                                     <h6 className='text-base font-bold line-clamp-1 break-all'>{chap.mangaTitle}</h6>
                                     <p>Ch. {chap.chapter} {chap.volume ? `Vol. ${chap.volume}` : ''}</p>
-                                    <p className='text-sm text-gray-600'>{chap.group} • {chap.language.toUpperCase()}</p>
-                                    <p className='text-sm text-gray-500'>{chap.updatedAt}</p>
+                                    <div className='flex justify-between'>
+                                        <div className='text-sm text-gray-600'>{chap.group}</div>
+                                        <div className='text-sm text-gray-500'>{chap.updatedAt}</div>
+                                    </div>
                                 </div>
                             </div>
                         </a>
