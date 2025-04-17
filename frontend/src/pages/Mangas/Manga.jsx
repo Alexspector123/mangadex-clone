@@ -1,5 +1,6 @@
-import React from "react";
-import { mangaData } from '../../mockData/mangaData.js';
+import React, { useState } from "react";
+import { useParams } from 'react-router-dom';
+import { useFetchByID } from "../../hooks/manga/useFetchbyID.jsx";
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaRegStar } from "react-icons/fa";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -8,8 +9,16 @@ import { RiPlayListAddLine } from "react-icons/ri";
 import { LuFlag } from "react-icons/lu";
 import { FiUpload } from "react-icons/fi";
 
+import { Tag } from "../../components/Tag/Tag.jsx"
+
+import MangaTagSection from "./mangaTagSection.jsx";
+
 const Manga = () => {
-  const data = mangaData[0];
+  const { id } = useParams();
+  const { mangaData, isLoading, error } = useFetchByID(id);
+  const [showMore, setShowMore] = useState(false);
+
+  if (error || !mangaData) return <div>Error: {error || "Manga not found"}</div>;
 
   return (
     <div className="flex min-w-0">
@@ -18,18 +27,18 @@ const Manga = () => {
         <div className="absolute inset-0 h-60 sm:h-70 md:h-[280px] w-full">
           <img
             className="object-cover object-[0%_25%] h-full w-full"
-            src= { data.Cover }
+            src= { mangaData.Cover }
             />
           <div className="absolute inset-0 before:absolute before:inset-0 before:bg-gradient-to-t before:from-white before:to-white/80 sm:before:hidden sm:bg-black/50 sm:backdrop-blur-sm"></div>
         </div>
 
-        <div className="relative z-10 px-6 mt-[68px] mb-auto">
+        <div className="relative z-10 px-6 mt-[68px] mb-8">
           <div className="mx-auto grid grid-flow-row-dense
-                          grid-cols-[30px_100px_1fr_30px] sm:grid-cols-[30px_200px_1fr_30px]
+                          grid-cols-[0px_100px_1fr_0px] sm:grid-cols-[0px_200px_1fr_0px] 2xl:grid-cols-[40px_200px_1fr_40px]
                           items-start gap-4">
             <div className="col-start-2 row-span-2 flex items-start relative mb-auto select-none sm:row-span-4">
               {/*<div className="flex items-center justify-center inset-0 absolute"></div>         For hover expand*/}
-              <img className="h-auto w-full rounded shadow-md" src={data.Cover} alt="" />
+              <img className="h-auto w-full rounded shadow-md" src={mangaData.Cover} alt="" />
             </div>
             <div className="col-start-3
                             flex flex-col 
@@ -39,23 +48,23 @@ const Manga = () => {
                             leading-[1.1em] wrap-break-word text-shadow-[1px_2px_4px_rgb(0_0_0_/_0.3)] 
                             font-bold font-poppins 
                             md:max-w-[682px] xl:max-w-[860px]
-                            max-[610px]:text-base text-xl sm:text-2xl md:text-3xl xl:text-[40px]">{data.Name}</p>
+                            max-[610px]:text-base text-xl sm:text-2xl md:text-3xl xl:text-[40px]">{mangaData.Title}</p>
               <div className="line-clamp-2 font-normal inline-block
                               leading-5 sm:leading-6
-                              text-base sm:text-2xl xl:text-xl">{data.Name}</div>
+                              text-base sm:text-2xl xl:text-xl">{mangaData.Title}</div>
               <div className="grow hidden sm:block"></div>
               <div className="flex flex-row gap-2">
-                <div className="font-normal text-xs sm:text-lg truncate">{data.Author}</div>
+                <div className="font-normal text-xs sm:text-lg truncate">{mangaData.Author}</div>
               </div>
             </div>
-            <div class="col-start-3 col-span-full sm:col-span-1 sm:col-start-3 sm:row-start-3">
-              {Array.isArray(data.tag) ? data.tag.map((tag, index) => (
-                <span key={index} className='bg-slate-100 font-bold px-2 m-1 text-[10px] rounded-sm items-center'>{tag}</span>
-              )) : <span key={index} className='bg-slate-100 font-bold px-2 m-1 text-[10px] rounded-sm items-center'>{tags}</span>}
+            <div className="col-start-3 col-span-full sm:col-span-1 sm:col-start-3 sm:row-start-3">
+            {Array.isArray(mangaData.tag) ? mangaData.tag.map((tag, index) => (
+              <Tag key={index} label={tag} />
+            )) : <Tag label="Unknown" />}
             </div>
             <div className="col-start-3 hidden sm:block"></div>
-            <div class="col-start-3 min-h-[100px] rounded-lg bg-teal-500 shadow">Statistic</div>
-            <div class="col-start-2 col-span-full
+            <div className="col-start-3 min-h-[100px] rounded-lg bg-teal-500 shadow">Statistic</div>
+            <div className="col-start-2 col-span-full
                         sm:col-span-1 sm:col-start-3 sm:row-start-2
                         flex gap-2 justify-between items-center sm:justify-normal">
 
@@ -124,8 +133,41 @@ const Manga = () => {
                                   w-[40px] sm:w-[48px]
                                   text-xl sm:text-[20px]"><FiUpload /></button>
             </div>
-            <div class="col-start-2 col-span-full min-h-[100px] rounded-lg bg-gray-500 shadow"></div>
-            <div class="col-start-2 col-span-full min-h-[100px] rounded-lg bg-blue-300 shadow">chapbox</div>
+            <div className="col-start-2 col-span-full">
+                {/* Mobile layout */}
+                <div className="block sm:hidden flex flex-col">
+                {/* Description (short or full) */}
+                <div className={`text-sm transition-all duration-300 ease-in-out ${showMore ? '' : 'line-clamp-3'}`}>
+                  {mangaData.Description}
+                </div>
+
+                {/* tags */}
+                {showMore && (
+                  <MangaTagSection data={mangaData}/>
+                )}
+
+                {/* See more / less button */}
+                <button
+                  onClick={() => setShowMore(!showMore)}
+                  className="mt-2 text-blue-600 text-sm font-medium cursor-pointer"
+                >
+                  {showMore ? "See less ▲" : "See more ▼"}
+                </button>
+              </div>
+
+              {/* Desktop layout */}
+              <div className="hidden sm:block space-y-4">
+                <div className="text-base mb-4">{mangaData.Description}</div>
+              </div>
+            </div>
+
+            <div className="col-start-2 col-span-full
+                            flex gap-4 justify-between">
+              <div className="hidden sm:block
+                              space-y-1">
+                    <MangaTagSection data={mangaData}/>
+              </div>
+              <div className=" min-h-[100px] rounded-lg bg-blue-300 shadow grow">chapbox</div></div>
           </div>
         </div>
       </div>

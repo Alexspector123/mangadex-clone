@@ -9,6 +9,7 @@ const mangadexLimiter = new Bottleneck({
   maxConcurrent: 1,
 });
 
+//Get Manga List
 export const fetchMangaList = async (req, res) => {
   try {
     let query = { ...req.query };
@@ -84,8 +85,7 @@ export const fetchMangaList = async (req, res) => {
               const coverFileName = coverResp.data.data.attributes.fileName;
               return `https://uploads.mangadex.org/covers/${manga.id}/${coverFileName}.256.jpg`;
             } catch (err) {
-              console.error(`Error fetching cover for manga ID ${manga.id}: ${err.message}`);
-              return null;
+
             }
           }
           return null;
@@ -158,5 +158,95 @@ export const fetchMangaList = async (req, res) => {
     return res.status(500).json({ error: 'An error occurred while fetching manga data.' });
   }
 };
+
+//Get Manga information
+export const fetchMangaById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const cacheKey = `manga:${id}`;
+
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+
+    console.log(`https://api.mangadex.org/manga/${id}`);
+
+    const mangaRes = await mangadexLimiter.schedule(() => 
+      axios.get(`https://api.mangadex.org/manga/${id}`, {
+        headers: {
+          'User-Agent' : 'YourAppName/1.0 (alexspector8766@gmail.com)',
+        },
+      })
+    );
+
+    const manga = mangaRes.data.data;
+
+    const MangaTitle = manga.attributes?.title ? Object.values(manga.attributes.title)[0] : "Untitled";
+
+    let MangaDescription;
+    const desc = manga.attributes.description;
+    const firstKey = Object.keys(desc || {})[0];
+    MangaDescription = firstKey ? desc[firstKey] : "No description";
+    if (desc?.en) {
+      MangaDescription = desc.en;
+    }
+
+    const tags = manga.attributes.tags.map(tag => tag.attributes.name.en);
+
+    const coverRel = manga.relationships.find(rel => rel.type === 'cover_art');
+    let coverUrl = null;
+    if (coverRel) {
+      try {
+        const coverRes = await axios.get(`https://api.mangadex.org/cover/${coverRel.id}`);
+        const coverFileName = coverRes.data.data.attributes.fileName;
+        coverUrl = `https://uploads.mangadex.org/covers/${id}/${coverFileName}.256.jpg`;
+      } catch (err) {
+        console.error(`Error fetching cover for manga ID ${id}: ${err.message}`);
+      }
+    }
+
+    const authorRel = manga.relationships.find(rel => rel.type === 'author');
+    let MangaAuthor = null;
+    if (authorRel) {
+      try {
+        const authorRes = await axios.get(`https://api.mangadex.org/author/${authorRel.id}`);
+        MangaAuthor = authorRes?.data?.data?.attributes?.name || 'Unknown';
+      } catch (err) {
+        console.error(`Error fetching author for manga ID ${id}: ${err.message}`);
+      }
+    }
+
+    const artistRel = manga.relationships.find(rel => rel.type === 'artist');
+    let MangaArtist = null;
+    if (artistRel) {
+      try {
+        const artistRes = await axios.get(`https://api.mangadex.org/author/${artistRel.id}`);
+        MangaArtist = artistRes?.data?.data?.attributes?.name || 'Unknown';
+      } catch (err) {
+        console.error(`Error fetching artist for manga ID ${id}: ${err.message}`);
+      }
+    }
+
+    const mangaData = {
+      id,
+      Title: MangaTitle,
+      Description: MangaDescription,
+      tags: tags,
+      Cover: coverUrl,
+      Author: MangaAuthor,
+      Artist: MangaArtist,
+    };
+
+    await redis.setex(cacheKey, 60, JSON.stringify(mangaData));
+    return res.status(200).json(mangaData);
+
+  } catch (err) {
+    console.error('Error fetching manga by ID:', err.message);
+    return res.status(500).json({ error: 'Failed to fetch manga by ID.' });
+  }
+};
+
 
 export default fetchMangaList;

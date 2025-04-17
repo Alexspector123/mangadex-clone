@@ -14,7 +14,6 @@ export const useFetchList = (params) => {
         setIsLoading(true);
 
         const queryString = new URLSearchParams(params).toString();
-        console.log(`${apiUrl}?${queryString}`);
         const mangaRes = await axios.get(`${apiUrl}?${queryString}`);
         const mangaData = mangaRes.data;
 

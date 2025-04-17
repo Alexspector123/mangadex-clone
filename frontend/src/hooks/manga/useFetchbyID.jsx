@@ -1,30 +1,34 @@
-import { useState, useEffect } from 'react';
-import { fetchMangaById} from '../../services/mangaService';
+// hooks/useFetchByID.js
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
-const useFetch = (params) => {
-    const [mangaData, setMangaData] = useState([]);
-    const [error, setError] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
+const apiUrl = "http://localhost:5000/api/manga";
 
-    useEffect(() => {
-        const loadData = async () => {
-            try {
-                setIsLoading(true);
-                let data = await fetchMangaById(params, 0);
-                setMangaData(data ? [data] : []);
-            } catch (error) {
-                setError(error.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+export const useFetchByID = (id) => {
+  const [mangaData, setMangaData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-        if (params) {
-            loadData();
-        }
-    }, [params]);
+  useEffect(() => {
+    const fetchMangaByID = async () => {
+      try {
+        setIsLoading(true);
+        const res = await axios.get(`${apiUrl}/${id}`);
+        setMangaData(res.data);
+        console.log("Fetched data:", res.data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    return { mangaData, error, isLoading };
+    if (id) {
+      fetchMangaByID();
+    }
+  }, [id]);
+
+  return { mangaData, isLoading, error };
 };
 
-export default useFetch;
+export default useFetchByID;

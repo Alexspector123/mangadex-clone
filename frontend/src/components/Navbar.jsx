@@ -39,7 +39,7 @@ const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
         <div className="flex items-center text-2xl">
           {!sidebar && (
             <>
-              <div><FaBars className={`filter transition-all duration-200 ${(isScrolled || !isMangaPage) ? 'invert-0' : 'invert'} cursor-pointer`} onClick={showSidebar} /></div>
+              <div><FaBars className={`filter transition-all duration-200 ${(isScrolled || !isMangaPage) ? 'invert sm:invert-0' : 'invert-0 sm:invert'} cursor-pointer`} onClick={showSidebar} /></div>
               <Logo isScrolled={isScrolled} applyFilter={!isMangaPage}/>
             </>
           )}
