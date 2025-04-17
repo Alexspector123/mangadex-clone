@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import useFetchList from '../../hooks/manga/useFetchList';
-import useLatestChapters from '../../hooks/chapter/useLatestChapters';
+import { useFetchChapters } from '../../hooks/chapter/useFetchChapters';
 
 import { FiArrowRight } from "react-icons/fi";
 
 const Latest = () => {
-    const { chapters, loading, error } = useLatestChapters(18);
+    const { chapters, loading, error } = useFetchChapters(18, 'readableAt');
     const { mangaID, mangaTitle, coverUrl} = chapters || {};
 
     if (error) return <p>Error: {error}</p>;

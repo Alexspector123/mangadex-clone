@@ -14,7 +14,7 @@ const AdvancedSearch = () => {
   };
 
   return (
-    <div className="relative z-10 px-4 mt-[68px] mb-auto">
+    <div className="relative z-10 px-6 mt-[68px] mb-auto">
       <h2>Advanced Manga Search</h2>
 
       <form onSubmit={handleSearch}>

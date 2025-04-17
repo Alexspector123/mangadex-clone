@@ -15,6 +15,8 @@ import MyGroup from "./pages/Follows/MyGroup";
 import History from "./pages/Follows/History";
 import Manga from "./pages/Mangas/Manga";
 
+import "./app.css";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>

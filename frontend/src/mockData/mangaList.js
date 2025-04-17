@@ -4,4 +4,6 @@ export const mangaList = {
     mangaDescriptions: [],
     mangaAuthors: [],
     coverUrls: [],
+    mangaArtists: [],
+    tags: [],
 }

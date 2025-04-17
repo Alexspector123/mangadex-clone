@@ -33,7 +33,7 @@ const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
 
     <div className='fixed top-0 left-0 w-full z-50'>
     <div className={`flex justify-center ${sidebar ? 'justify-end' : ''} items-center`}>
-      <div className={`fixed top-0 ${sidebar ? 'w-[calc(100%-260px)]' : 'w-full min-[1448px]:w-[1440px]'} h-[60px] flex justify-between items-center px-4 text-black z-10 flex-shrink-0 transition-all duration-200 ${
+      <div className={`fixed top-0 ${sidebar ? 'w-[calc(100%-260px)]' : 'w-full min-[1448px]:w-[1440px]'} h-[60px] flex justify-between items-center px-6 text-black z-10 flex-shrink-0 transition-all duration-200 ${
         isScrolled ? 'bg-white' : 'bg-transparent'
         }`}>
         <div className="flex items-center text-2xl">
