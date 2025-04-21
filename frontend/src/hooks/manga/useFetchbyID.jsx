@@ -15,7 +15,6 @@ export const useFetchByID = (id) => {
         setIsLoading(true);
         const res = await axios.get(`${apiUrl}/${id}`);
         setMangaData(res.data);
-        console.log("Fetched data:", res.data);
       } catch (err) {
         setError(err.message);
       } finally {

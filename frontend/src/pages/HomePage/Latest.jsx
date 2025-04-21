@@ -24,7 +24,7 @@ const Latest = () => {
             <div className='grid gap-x-6 3xl:grid-cols-4 2xl:grid-cols-3 lg:grid-cols-2 grid-cols-1'>
                 <div className='grid gap-4 p-4 bg-gray-100'>
                     {chapters.slice(0,6).map((chap, index) => (
-                        <a href={`/titles?id=${chap.mangaID}`}>                        
+                        <a href={`/titles/${chap.mangaID}`}>                        
                             <div 
                             className='flex gap-2' 
                             key={chap.mangaID}

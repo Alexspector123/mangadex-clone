@@ -1,6 +1,15 @@
 import React, { useState } from "react";
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+
 import { useFetchByID } from "../../hooks/manga/useFetchbyID.jsx";
+
+import { useSidebar } from "../../contexts/SidebarContext.js";
+
+import { Tag } from "../../components/Tag/Tag.jsx"
+import Cover from "../../components/Manga/Cover.jsx";
+import CoverModal from "../../components/Manga/CoverModal.jsx";
+import TabNavigation from "../../components/Manga/TabNavigation.jsx";
+
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaRegStar } from "react-icons/fa";
 import { FiMoreHorizontal } from "react-icons/fi";
@@ -8,16 +17,25 @@ import { IoBookOutline } from "react-icons/io5";
 import { RiPlayListAddLine } from "react-icons/ri";
 import { LuFlag } from "react-icons/lu";
 import { FiUpload } from "react-icons/fi";
+import { GoDotFill } from "react-icons/go";
 
-import { Tag } from "../../components/Tag/Tag.jsx"
-
-import MangaTagSection from "./mangaTagSection.jsx";
+import MangaTagSection from "./MangaTagSection.jsx";
+import ArtGallery from "./ArtGallery.jsx";
+import MangaChapterSection from "./mangaChapterSection.jsx";
 
 const Manga = () => {
   const { id } = useParams();
   const { mangaData, isLoading, error } = useFetchByID(id);
   const [showMore, setShowMore] = useState(false);
 
+  const [showModal, setShowModal] = useState(false)
+
+  const { sidebar } = useSidebar();
+
+  const [searchParams] = useSearchParams();
+  const tab = searchParams.get("tab") || "chapters";
+
+  if (isLoading) return <div></div>;
   if (error || !mangaData) return <div>Error: {error || "Manga not found"}</div>;
 
   return (
@@ -33,17 +51,20 @@ const Manga = () => {
         </div>
 
         <div className="relative z-10 px-6 mt-[68px] mb-8">
-          <div className="mx-auto grid grid-flow-row-dense
-                          grid-cols-[0px_100px_1fr_0px] sm:grid-cols-[0px_200px_1fr_0px] 2xl:grid-cols-[40px_200px_1fr_40px]
-                          items-start gap-4">
+          <div className={`mx-auto grid grid-flow-row-dense
+                          grid-cols-[0px_100px_1fr_0px] sm:grid-cols-[0px_200px_1fr_0px] 
+                          ${sidebar ? "" 
+                            : "2xl:grid-cols-[40px_200px_1fr_40px]"}
+                          items-start gap-4`}>
             <div className="col-start-2 row-span-2 flex items-start relative mb-auto select-none sm:row-span-4">
-              {/*<div className="flex items-center justify-center inset-0 absolute"></div>         For hover expand*/}
-              <img className="h-auto w-full rounded shadow-md" src={mangaData.Cover} alt="" />
+              <Cover cover={mangaData.Cover} onClick={() => setShowModal(true)} />
             </div>
+            
+            {showModal && <CoverModal cover={mangaData.Cover} onClose={() => setShowModal(false)} />}
             <div className="col-start-3
                             flex flex-col 
                           text-black sm:text-white
-                            sm:h-[210px]">
+                            sm:h-[205px]">
               <p className="mb-1
                             leading-[1.1em] wrap-break-word text-shadow-[1px_2px_4px_rgb(0_0_0_/_0.3)] 
                             font-bold font-poppins 
@@ -51,16 +72,24 @@ const Manga = () => {
                             max-[610px]:text-base text-xl sm:text-2xl md:text-3xl xl:text-[40px]">{mangaData.Title}</p>
               <div className="line-clamp-2 font-normal inline-block
                               leading-5 sm:leading-6
-                              text-base sm:text-2xl xl:text-xl">{mangaData.Title}</div>
+                              text-base sm:text-2xl xl:text-xl">{mangaData.AltTitles}</div>
               <div className="grow hidden sm:block"></div>
               <div className="flex flex-row gap-2">
                 <div className="font-normal text-xs sm:text-lg truncate">{mangaData.Author}</div>
               </div>
             </div>
             <div className="col-start-3 col-span-full sm:col-span-1 sm:col-start-3 sm:row-start-3">
-            {Array.isArray(mangaData.tag) ? mangaData.tag.map((tag, index) => (
-              <Tag key={index} label={tag} />
+            {Array.isArray(mangaData.tags) ? mangaData.tags.map((tag, index) => (
+              <Tag key={index} label={tag.attributes.name.en} />
             )) : <Tag label="Unknown" />}
+            <div className="inline-flex items-center gap-1 font-bold text-[13px] uppercase">
+              <GoDotFill className={`${mangaData.Status === "ongoing" ? "text-green-400" 
+                                      : (mangaData.Status === "completed" ? "text-blue-400"
+                                      : (mangaData.Status === "completed" ? "text-orange-500" 
+                                      : (mangaData.Status === "completed" ? "text-red-500" 
+                                      : "text-gray-400")))}`} />
+              <span>Publication: {mangaData.PublicationYear}, {mangaData.Status}</span>
+            </div>
             </div>
             <div className="col-start-3 hidden sm:block"></div>
             <div className="col-start-3 min-h-[100px] rounded-lg bg-teal-500 shadow">Statistic</div>
@@ -161,13 +190,22 @@ const Manga = () => {
               </div>
             </div>
 
-            <div className="col-start-2 col-span-full
-                            flex gap-4 justify-between">
-              <div className="hidden sm:block
-                              space-y-1">
-                    <MangaTagSection data={mangaData}/>
+            <div className="col-start-2 col-span-full">
+              <div className="overflow-x-auto mt-2 mb-4">
+                <TabNavigation />
               </div>
-              <div className=" min-h-[100px] rounded-lg bg-blue-300 shadow grow">chapbox</div></div>
+              <div className="flex gap-6 items-start">
+                <div className="hidden sm:block basis-1/3">
+                      <MangaTagSection data={mangaData}/>
+                </div>
+                <div className="grow flex-grow">
+                  {tab === "chapters" && <MangaChapterSection id={id}/>}
+                  {tab === "art" && <ArtGallery />}
+                </div>
+              </div>
+
+            </div>
+            
           </div>
         </div>
       </div>

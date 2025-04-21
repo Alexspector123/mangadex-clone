@@ -37,7 +37,7 @@ const RecentAdded = () => {
             {chapters.map((chap, index) => (
                 <SwiperSlide key={chap.mangaID}>
                 <a 
-                    href={`/titles?id=${chap.mangaID}`} 
+                    href={`/titles/${chap.mangaID}`} 
                     onClick={() => sendData(index)} 
                     className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
                 >

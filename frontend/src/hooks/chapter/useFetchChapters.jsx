@@ -14,9 +14,7 @@ export const useFetchChapters = (limit, order) => {
         setLoading(true);
 
         const chapterRes = await axios.get(`${apiUrl}?limit=${limit}&order=${order}`);
-        const chapterData = chapterRes.data;
-
-        setChapters(chapterData);
+        setChapters(chapterRes.data);
       } catch (error) {
         setError(error.message);
       } finally {

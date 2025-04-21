@@ -1,13 +1,8 @@
 import axios from 'axios';
 import Redis from 'ioredis';
-import Bottleneck from 'bottleneck';
+import mangadexLimiter from '../utils/rateLimiter.js';
 
 const redis = new Redis();
-
-const mangadexLimiter = new Bottleneck({
-  minTime: 200,
-  maxConcurrent: 1,
-});
 
 //Get Manga List
 export const fetchMangaList = async (req, res) => {
@@ -123,11 +118,11 @@ export const fetchMangaList = async (req, res) => {
           if (artistRel) {
             try {
               const artistResp = await axios.get(
-                `https://api.mangadex.org/artist/${artistRel.id}`
+                `https://api.mangadex.org/author/${artistRel.id}`
               );
-              return artistResp.data.data.attributes.name;
+              return artistResp?.data?.data?.attributes?.name || 'Unknown';
             } catch (err) {
-              console.error(`Error fetching author for manga ID ${manga.id}: ${err.message}`);
+              console.error(`Error fetching artist for manga ID ${manga.id}: ${err.message}`);
               return null;
             }
           }
@@ -171,8 +166,6 @@ export const fetchMangaById = async (req, res) => {
       return res.status(200).json(JSON.parse(cachedData));
     }
 
-    console.log(`https://api.mangadex.org/manga/${id}`);
-
     const mangaRes = await mangadexLimiter.schedule(() => 
       axios.get(`https://api.mangadex.org/manga/${id}`, {
         headers: {
@@ -183,7 +176,14 @@ export const fetchMangaById = async (req, res) => {
 
     const manga = mangaRes.data.data;
 
-    const MangaTitle = manga.attributes?.title ? Object.values(manga.attributes.title)[0] : "Untitled";
+    const MangaTitle = manga.attributes?.title ? (manga.attributes.title.ja ? manga.attributes.title.ja : (manga.attributes.title.en ? manga.attributes.title.en : Object.values(manga.attributes.title)[0])) : "Untitled";
+    
+    const altTitles = manga.attributes?.altTitles;
+    const MangaAltTitle = 
+    altTitles.find(t => t.en && t.en !== MangaTitle)?.en ??
+    altTitles.find(t => t.ja && t.ja !== MangaTitle)?.ja ??
+    Object.values(altTitles[0] || {})[0] ??
+    "No alternative titles";
 
     let MangaDescription;
     const desc = manga.attributes.description;
@@ -193,7 +193,7 @@ export const fetchMangaById = async (req, res) => {
       MangaDescription = desc.en;
     }
 
-    const tags = manga.attributes.tags.map(tag => tag.attributes.name.en);
+    const tags = manga.attributes.tags;
 
     const coverRel = manga.relationships.find(rel => rel.type === 'cover_art');
     let coverUrl = null;
@@ -228,15 +228,20 @@ export const fetchMangaById = async (req, res) => {
         console.error(`Error fetching artist for manga ID ${id}: ${err.message}`);
       }
     }
+    const MangaStatus = manga.attributes.status || 'Unknown';
+    const MangaYear = manga.attributes.year || 'Unknown';
 
     const mangaData = {
       id,
       Title: MangaTitle,
+      AltTitles: MangaAltTitle,
       Description: MangaDescription,
       tags: tags,
       Cover: coverUrl,
       Author: MangaAuthor,
       Artist: MangaArtist,
+      Status: MangaStatus,
+      PublicationYear: MangaYear,
     };
 
     await redis.setex(cacheKey, 60, JSON.stringify(mangaData));
@@ -248,5 +253,56 @@ export const fetchMangaById = async (req, res) => {
   }
 };
 
+
+// Get chapter information by manga ID
+export const fetchVolumeListByID = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const cacheKey = `VolumeList:${id}`;
+
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+
+    const VolumeRes = await mangadexLimiter.schedule(() =>
+      axios.get(`https://api.mangadex.org/manga/${id}/aggregate`, {
+        headers: {
+          'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)',
+        },
+      })
+    );
+
+    const volumesObj = VolumeRes.data.volumes;
+    
+    const VolumeListData = Object.entries(volumesObj).map(([volumeNumber, volumeData]) => {
+      const chapters = Object.entries(volumeData.chapters).map(
+        ([chapterNumber, chapterData]) => ({
+          chapterNumber,
+          id: chapterData.id,
+          others: chapterData,
+        })
+      );
+
+      return {
+        volume: volumeNumber,
+        count: volumeData.count,
+        chapters,
+      };
+    });
+
+    await redis.setex(cacheKey, 60, JSON.stringify(VolumeListData));
+
+    return res.status(200).json(VolumeListData);
+  } catch (error) {
+    console.error("Error fetching Volume list:", error.message);
+
+    if (error.response?.status === 429) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Please wait and try again.' });
+    }
+
+    return res.status(500).json({ error: 'An error occurred while fetching chapter data.' });
+  }
+}
 
 export default fetchMangaList;

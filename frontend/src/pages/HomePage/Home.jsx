@@ -53,7 +53,7 @@ const Home = () => {
     >
       {coverUrls?.map((url, index) =>
         <SwiperSlide key={index} onClick={() => sendData(index)}>
-          <a href={`/titles?id=${mangaIDs[index]}`}>
+          <a href={`/titles/${mangaIDs[index]}`}>
           <div className='relative'>
             <img
               className="object-cover object-[0%_25%] h-80 md:h-[400px] xl:h-[440px] w-full"

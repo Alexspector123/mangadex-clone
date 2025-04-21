@@ -1,18 +1,13 @@
 import axios from 'axios';
 import Redis from 'ioredis';
-import Bottleneck from 'bottleneck';
+import mangadexLimiter from '../utils/rateLimiter.js';
+import { toRelativeTime } from '../utils/toRelativeTime.js';
 
 const redis = new Redis(); // Connect to Redis
 
-// Initialize Bottleneck with 200ms delay and 1 concurrent request
-const mangadexLimiter = new Bottleneck({
-  minTime: 200,
-  maxConcurrent: 1
-});
-
 export const fetchChapterList = async (req, res) => {
   try {
-    const { limit = 10, order = 'desc' } = req.query; // Default to limit of 10 and order desc
+    const { limit = 10, order = 'desc' } = req.query;
     const queryString = `limit=${limit}&order[${order}]=desc`;
 
     const cacheKey = `chapterList:${queryString}`;
@@ -27,7 +22,7 @@ export const fetchChapterList = async (req, res) => {
     const response = await mangadexLimiter.schedule(() =>
       axios.get(`https://api.mangadex.org/chapter?${queryString}`, {
         headers: {
-          'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)', // Replace with your info
+          'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)',
         },
       })
     );
@@ -83,13 +78,80 @@ export const fetchChapterList = async (req, res) => {
   }
 };
 
-// Helper function to convert time to relative format (like "5 minutes ago")
-const toRelativeTime = (dateStr) => {
-  const timeDiff = (new Date() - new Date(dateStr)) / 1000;
-  if (timeDiff < 60) return `${Math.floor(timeDiff)} seconds ago`;
-  if (timeDiff < 3600) return `${Math.floor(timeDiff / 60)} minutes ago`;
-  if (timeDiff < 86400) return `${Math.floor(timeDiff / 3600)} hours ago`;
-  return `${Math.floor(timeDiff / 86400)} days ago`;
+export const fetchChapterByID = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const cacheKey = `chapter:${id}`;
+
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+
+    const chapterRes = await mangadexLimiter.schedule(() => 
+      axios.get(`https://api.mangadex.org/chapter/${id}`, {
+        headers: {
+          'User-Agent' : 'YourAppName/1.0 (alexspector8766@gmail.com)',
+        },
+      })
+    );
+
+    const chapter = chapterRes.data.data;
+
+    const chapterTitle = chapter.attributes?.title;
+
+    const updatedAt = toRelativeTime(chapter.attributes.readableAt);
+
+    const chapterData = {
+      id,
+      Title: chapterTitle,
+      ReleaseTime: updatedAt,
+    }
+
+    await redis.setex(cacheKey, 60, JSON.stringify(chapterData));
+    return res.status(200).json(chapterData);
+
+  } catch (error) {
+    console.error('Error fetching manga by ID:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch manga by ID.' });
+  }
+};
+
+export const fetchChaptersBatch = async (req, res) => {
+  const { ids } = req.body;
+  if (!Array.isArray(ids)) {
+    return res.status(400).json({ error: 'Request body must be { ids: string[] }' });
+  }
+
+  try {
+    // schedule and dedupe via your limiter
+    const results = await Promise.all(
+      ids.map(id =>
+        mangadexLimiter.schedule(() =>
+          axios
+            .get(`https://api.mangadex.org/chapter/${id}`, {
+              headers: { 'User-Agent': 'YourApp/1.0 (email@example.com)' },
+            })
+            .then(r => {
+              const d = r.data.data;
+              return {
+                id,
+                title: d.attributes.title,
+                readableAt: toRelativeTime(d.attributes.readableAt),
+              };
+            })
+            .catch(() => null)
+        )
+      )
+    );
+
+    // filter out any nulls
+    res.json(results.filter(Boolean));
+  } catch (err) {
+    console.error('Batch chapters error:', err);
+    res.status(500).json({ error: 'Failed to fetch chapters batch' });
+  }
 };
 
 export default fetchChapterList;

@@ -2,12 +2,14 @@ import React, { useState, useRef } from 'react';
 import Navbar from "../components/Navbar.jsx";
 import { Outlet } from 'react-router-dom';
 import SideBar from '../components/SideBar.jsx';
+import { SidebarContext } from "../contexts/SidebarContext.js";
 
 const RootLayout = () => {
   const [sidebar, setSidebar] = useState(true);
   const contentRef = useRef(null);
 
   return (
+    <SidebarContext.Provider value={{ sidebar, setSidebar }}>
     <div className="flex h-screen overflow-hidden">
     <div className={`fixed lg:relative top-0 left-0 h-full bg-white transition-all duration-200
       ${sidebar ? "w-[260px]" : "w-0 overflow-hidden"}  
@@ -24,6 +26,7 @@ const RootLayout = () => {
         <Outlet />
       </div>
     </div>
+  </SidebarContext.Provider>
   );
 };
 

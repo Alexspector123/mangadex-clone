@@ -57,7 +57,7 @@ const SelfPublish = () => {
             {mangaIDs && mangaIDs.map((id, index) => (
                 <SwiperSlide key={id}>
                 <a 
-                    href={`/titles?id=${id}`} 
+                    href={`/titles/${id}`} 
                     onClick={() => sendData(index)} 
                     className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition"
                 >
