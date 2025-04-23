@@ -139,6 +139,8 @@ export const fetchChaptersBatch = async (req, res) => {
                 id,
                 title: d.attributes.title,
                 readableAt: toRelativeTime(d.attributes.readableAt),
+                chapter: d.attributes.chapter,
+                volume: d.attributes.volume,
               };
             })
             .catch(() => null)

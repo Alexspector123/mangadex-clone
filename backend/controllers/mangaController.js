@@ -280,7 +280,7 @@ export const fetchVolumeListByID = async (req, res) => {
         ([chapterNumber, chapterData]) => ({
           chapterNumber,
           id: chapterData.id,
-          others: chapterData,
+          others: chapterData.others,
         })
       );
 

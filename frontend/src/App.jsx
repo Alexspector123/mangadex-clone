@@ -14,7 +14,8 @@ import MDLists from "./pages/Follows/MDLists";
 import MyGroup from "./pages/Follows/MyGroup";
 import History from "./pages/Follows/History";
 import Manga from "./pages/Mangas/Manga";
-
+import ChapPage from "./pages/Chapter/ChapPage";
+import ChapLayout from "./layout/ChapLayout";
 import "./app.css";
 
 const router = createBrowserRouter(
@@ -34,6 +35,7 @@ const router = createBrowserRouter(
         <Route path="follows" element={<Library />} />
         <Route path=":id" element= {<Manga/>} />
       </Route>
+      <Route path="/chapter/:id/:page" element={<ChapPage />} />
       <Route path="*" element={<ErrorPage />} />
     </Route>
   )

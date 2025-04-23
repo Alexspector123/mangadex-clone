@@ -21,7 +21,7 @@ import { GoDotFill } from "react-icons/go";
 
 import MangaTagSection from "./MangaTagSection.jsx";
 import ArtGallery from "./ArtGallery.jsx";
-import MangaChapterSection from "./mangaChapterSection.jsx";
+import MangaChapterSection from "./MangaChapterSection.jsx";
 
 const Manga = () => {
   const { id } = useParams();
