@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useFetchByID } from "../../hooks/manga/useFetchbyID.jsx";

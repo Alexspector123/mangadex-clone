@@ -5,6 +5,7 @@ import { toRelativeTime } from '../utils/toRelativeTime.js';
 
 const redis = new Redis(); // Connect to Redis
 
+// Get chapter list information
 export const fetchChapterList = async (req, res) => {
   try {
     const { limit = 10, order = 'desc' } = req.query;
@@ -77,7 +78,7 @@ export const fetchChapterList = async (req, res) => {
     return res.status(500).json({ error: 'An error occurred while fetching chapter data.' });
   }
 };
-
+// Get specific chapter information
 export const fetchChapterByID = async (req, res) => {
   const { id } = req.params;
 
@@ -117,7 +118,7 @@ export const fetchChapterByID = async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch manga by ID.' });
   }
 };
-
+// Get chapter list base on id list
 export const fetchChaptersBatch = async (req, res) => {
   const { ids } = req.body;
   if (!Array.isArray(ids)) {
@@ -133,14 +134,25 @@ export const fetchChaptersBatch = async (req, res) => {
             .get(`https://api.mangadex.org/chapter/${id}`, {
               headers: { 'User-Agent': 'YourApp/1.0 (email@example.com)' },
             })
-            .then(r => {
+            .then(async r => {
               const d = r.data.data;
+
+              const groupRel = d.relationships.find(r => r.type === 'scanlation_group');
+              const groupID = groupRel?.id;
+              let groupName = '';
+              if (groupID) {
+                const groupRes = await axios.get(`https://api.mangadex.org/group/${groupID}`);
+                groupName = groupRes.data.data.attributes.name;
+              }
+
               return {
                 id,
                 title: d.attributes.title,
                 readableAt: toRelativeTime(d.attributes.readableAt),
                 chapter: d.attributes.chapter,
                 volume: d.attributes.volume,
+                translatedLanguage: d.attributes.translatedLanguage,
+                group: groupName,
               };
             })
             .catch(() => null)
@@ -153,6 +165,38 @@ export const fetchChaptersBatch = async (req, res) => {
   } catch (err) {
     console.error('Batch chapters error:', err);
     res.status(500).json({ error: 'Failed to fetch chapters batch' });
+  }
+};
+// Get chapter to read
+export const fetchChapterReader = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const cacheKey = `chapterReader:${id}`;
+
+    const cachedData = await redis.get(cacheKey);
+    if(cachedData) {
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+    const chapterReaderRes = await mangadexLimiter.schedule(() =>
+      axios.get(`https://api.mangadex.org/at-home/server/${id}?forcePort443=true`,{
+        headers: {
+          'User-Agent' : 'YourAppName/1.0 (alexspector8766@gmail.com)',
+        }
+      })
+    );
+
+    const chapterReader = chapterReaderRes.data;
+    const chapterReaderData = [];
+    chapterReader.chapter?.data?.map((imgUrl) => {
+      const url = `${chapterReader.baseUrl}/data/${chapterReader.chapter.hash}/${imgUrl}`;
+      chapterReaderData.push(url);
+    });
+    await redis.setex(cacheKey, 60, JSON.stringify(chapterReaderData));
+    return res.status(200).json(chapterReaderData);
+  } catch (error) {
+    console.error('Error fetching manga reader by ID:', error.message);
+    return res.status(500).json({ error: 'Failed to fetch manga reader by ID.' });
   }
 };
 

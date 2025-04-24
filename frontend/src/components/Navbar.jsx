@@ -32,11 +32,20 @@ const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
 
   return (
 
-    <div className={`${!isChapPage ? 'fixed' : ''} top-0 left-0 w-full z-50`}>
+    <div className={`${!isChapPage ? 'fixed' : ''} 
+                    top-0 left-0 
+                    w-full 
+                    z-50`}>
     <div className={`flex justify-center ${sidebar ? 'justify-end' : ''} items-center`}>
-      <div className={`${!isChapPage ? 'fixed' : ''} top-0 ${sidebar ? 'w-[calc(100%-260px)]' : 'w-full min-[1448px]:w-[1440px]'} h-[60px] flex justify-between items-center px-6 text-black z-10 flex-shrink-0 transition-all duration-200 ${
-        isScrolled ? 'bg-white' : 'bg-transparent'
-        }`}>
+      <div className={`${!isChapPage ? 'fixed' : ''} top-0 
+                      ${sidebar ? 'w-[calc(100%-260px)]' : 'w-full min-[1448px]:w-[1440px]'} h-[60px] 
+                      flex justify-between items-center flex-shrink-0
+                      px-6 
+                      text-black
+                      rounded
+                      z-10 
+                      transition-all duration-200 
+                      ${isScrolled ? 'bg-white' : 'bg-transparent'}`}>
         <div className="flex items-center text-2xl">
           {!sidebar && (
             <>

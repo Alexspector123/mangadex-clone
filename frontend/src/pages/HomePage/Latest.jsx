@@ -47,7 +47,7 @@ const Latest = () => {
 
                 <div className='grid gap-4 p-4 bg-gray-100'>
                     {chapters.slice(7,12).map((chap, index) => (
-                        <a href={`/titles?id=${chap.mangaID}`}>                        
+                        <a href={`/titles/${chap.mangaID}`}>                        
                             <div 
                             className='flex gap-2' 
                             key={chap.mangaID}
@@ -70,7 +70,7 @@ const Latest = () => {
 
                 <div className='grid gap-4 p-4 bg-gray-100'>
                     {chapters.slice(13,18).map((chap, index) => (
-                        <a href={`/titles?id=${chap.mangaID}`}>                        
+                        <a href={`/titles/${chap.mangaID}`}>                        
                             <div 
                             className='flex gap-2' 
                             key={chap.mangaID}
