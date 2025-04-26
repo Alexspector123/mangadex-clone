@@ -35,7 +35,9 @@ const router = createBrowserRouter(
         <Route path="follows" element={<Library />} />
         <Route path=":id" element= {<Manga/>} />
       </Route>
-      <Route path="/chapter/:id/:page" element={<ChapPage />} />
+      <Route path="chapter" element={<ChapLayout />}>
+        <Route path=":id/:page" element={<ChapPage />}/>
+      </Route>
       <Route path="*" element={<ErrorPage />} />
     </Route>
   )

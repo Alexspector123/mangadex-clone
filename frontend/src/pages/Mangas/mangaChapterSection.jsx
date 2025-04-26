@@ -76,11 +76,11 @@ const MangaChapterSection = ({ id }) => {
 
   return (
     <div>
-      <div className='flex gap-x-2 mb-4'>
+      <div className='flex gap-x-2 mb-4 justify-between'>
         <button
         onClick={() => setSortOrder(prev => (prev === 'asc' ? 'desc' : 'asc'))}
         className='cursor-pointer
-                    bg-slate-100 px-7 py-1 rounded
+                    bg-slate-100 px-5 py-1 rounded
                     font-semibold'>
           {sortOrder === 'asc' ? 'Ascending' : 'Descending'}
         </button>

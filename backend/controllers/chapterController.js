@@ -81,7 +81,6 @@ export const fetchChapterList = async (req, res) => {
 // Get specific chapter information
 export const fetchChapterByID = async (req, res) => {
   const { id } = req.params;
-
   try {
     const cacheKey = `chapter:${id}`;
 
@@ -102,12 +101,36 @@ export const fetchChapterByID = async (req, res) => {
 
     const chapterTitle = chapter.attributes?.title;
 
+    const chapterNo = chapter.attributes?.chapter;
+
     const updatedAt = toRelativeTime(chapter.attributes.readableAt);
+
+    const mangaRel = chapter.relationships.find(r => r.type === 'manga');
+    const groupRel = chapter.relationships.find(r => r.type === 'scanlation_group');
+
+    const mangaID = mangaRel?.id;
+    const groupID = groupRel?.id;
+
+    const mangaRes = await axios.get(`https://api.mangadex.org/manga/${mangaID}`);
+    const mangaTitle = Object.values(mangaRes.data.data.attributes.title)[0];
+
+    let groupName = '';
+    if (groupID) {
+      const groupRes = await axios.get(`https://api.mangadex.org/group/${groupID}`);
+      groupName = groupRes.data.data.attributes.name;
+    }
+
+    const translatedLanguage = chapter.attributes?.translatedLanguage;
 
     const chapterData = {
       id,
       Title: chapterTitle,
       ReleaseTime: updatedAt,
+      chapterNo,
+      groupName,
+      translatedLanguage,
+      mangaID,
+      mangaTitle,
     }
 
     await redis.setex(cacheKey, 60, JSON.stringify(chapterData));

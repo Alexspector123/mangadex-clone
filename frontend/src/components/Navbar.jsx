@@ -60,7 +60,7 @@ const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
             <input
               type="text"
               placeholder="Search"
-              className="md:w-72 h-8 bg-slate-100 rounded-lg px-4 py-1 text-[17px] transition-all duration-200 focus:w-170 "
+              className="md:w-72 h-8 bg-slate-100 rounded-lg px-4 py-1 text-[17px] transition-all duration-200 focus:w-170"
             />
             <CiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xl cursor-pointer " />
           </div>
