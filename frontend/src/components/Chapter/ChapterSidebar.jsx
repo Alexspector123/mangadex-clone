@@ -87,8 +87,6 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
         navigate(`/chapter/${prevChapter.id}/1`);
       }
     }
-    console.log('next chapter ', nextChapter);
-    console.log('previous chapter ', prevChapter);
 
   return (
     <>

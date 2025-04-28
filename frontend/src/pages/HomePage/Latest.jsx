@@ -26,8 +26,8 @@ const Latest = () => {
                     {chapters.slice(0,6).map((chap, index) => (
                         <a href={`/titles/${chap.mangaID}`}>                        
                             <div 
-                            className='flex gap-2' 
-                            key={chap.mangaID}
+                            className='flex gap-2'
+                            key={index}
                             id={chap.mangaID}
                             onClick={() => sendData(index)}
                             >
@@ -50,7 +50,7 @@ const Latest = () => {
                         <a href={`/titles/${chap.mangaID}`}>                        
                             <div 
                             className='flex gap-2' 
-                            key={chap.mangaID}
+                            key={index}
                             id={chap.mangaID}
                             onClick={() => sendData(index)}
                             >
@@ -73,7 +73,7 @@ const Latest = () => {
                         <a href={`/titles/${chap.mangaID}`}>                        
                             <div 
                             className='flex gap-2' 
-                            key={chap.mangaID}
+                            key={index}
                             id={chap.mangaID}
                             onClick={() => sendData(index)}
                             >

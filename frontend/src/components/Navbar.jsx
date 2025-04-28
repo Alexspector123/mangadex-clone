@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+
 import { CiSearch } from "react-icons/ci";
 import { FiUser } from "react-icons/fi";
 import { FaBars } from "react-icons/fa6";
+
 import Logo from './Logo';
+import SearchInputHomePage from '../components/SearchInputHomePage';
 
 const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -56,19 +59,9 @@ const Navbar = ({ showSidebar, sidebar, scrollContainer }) => {
         </div>
         <div className="flex items-center gap-4">
 
-          <div className="relative hidden md:block">
-            <input
-              type="text"
-              placeholder="Search"
-              className="md:w-72 h-8 bg-slate-100 rounded-lg px-4 py-1 text-[17px] transition-all duration-200 focus:w-170"
-            />
-            <CiSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-xl cursor-pointer " />
-          </div>
+          <SearchInputHomePage />
 
-          <div className="md:hidden flex justify-center items-center bg-slate-300 h-8 w-8 rounded-xl">
-            <CiSearch className="text-2xl cursor-pointer"/>
-          </div>
-            <div className='bg-slate-300 h-10 w-10 flex justify-center items-center rounded-full'><FiUser className="text-4xl cursor-pointer" /></div>
+          <div className='bg-slate-300 h-10 w-10 flex justify-center items-center rounded-full'><FiUser className="text-4xl cursor-pointer" /></div>
         </div>
       </div>      
 

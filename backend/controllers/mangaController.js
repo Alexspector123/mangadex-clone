@@ -305,4 +305,56 @@ export const fetchVolumeListByID = async (req, res) => {
   }
 }
 
+export const searchManga = async (req, res) => {
+  const { query } = req.query;
+
+  if (typeof query !== "string" || query.trim() === "") {
+    return res.status(400).json({ error: "Query is required" });
+  }
+
+  try {
+    const cacheKey = `mangaSearch:${query}`;
+
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+    const [mangaRes, groupRes, authorRes] = await Promise.all([
+      mangadexLimiter.schedule(() =>
+        axios.get(`https://api.mangadex.org/manga?limit=5&title=${query}`), {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)',
+          }
+      }),
+      mangadexLimiter.schedule(() =>
+        axios.get(`https://api.mangadex.org/group?limit=5&name=${query}`), {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)',
+          }
+      }),
+      mangadexLimiter.schedule(() =>
+        axios.get(`https://api.mangadex.org/author?limit=5&name=${query}`), {
+          headers: {
+            'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)',
+          }
+      }),
+    ]);
+    const Response = {
+      manga: mangaRes.data.data,
+      group: groupRes.data.data,
+      author: authorRes.data.data,
+    }
+    return res.status(200).json(Response);
+
+  } catch (error) {
+    console.error("Error fetching search list:", error.message);
+
+    if (error.response?.status === 429) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Please wait and try again.' });
+    }
+
+    return res.status(500).json({ error: 'An error occurred while fetching chapter data.' });
+  }
+}
+
 export default fetchMangaList;

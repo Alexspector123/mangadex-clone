@@ -85,8 +85,8 @@ const Manga = () => {
             <div className="inline-flex items-center gap-1 font-bold text-[13px] uppercase">
               <GoDotFill className={`${mangaData.Status === "ongoing" ? "text-green-400" 
                                       : (mangaData.Status === "completed" ? "text-blue-400"
-                                      : (mangaData.Status === "completed" ? "text-orange-500" 
-                                      : (mangaData.Status === "completed" ? "text-red-500" 
+                                      : (mangaData.Status === "hiatus" ? "text-orange-500" 
+                                      : (mangaData.Status === "cancelled" ? "text-red-500" 
                                       : "text-gray-400")))}`} />
               <span>Publication: {mangaData.PublicationYear}, {mangaData.Status}</span>
             </div>

@@ -1,11 +1,14 @@
 import axios from 'axios';
+import jwt from 'jsonwebtoken';
 
 const clientId = process.env.MANGADEX_CLIENT_ID;
 const clientSecret = process.env.MANGADEX_CLIENT_SECRET;
 const username = process.env.MANGADEX_USERNAME;
 const password = process.env.MANGADEX_PASSWORD;
 
-// Get access token
+const JWT_KEY = process.env.JWT_KEY || "your_jwt_secret_key";
+
+// Get mangadex access token
 export const getAccessToken = async () => {
   const creds = {
     grant_type: 'password',
@@ -27,7 +30,7 @@ export const getAccessToken = async () => {
   }
 };
 
-// Refresh access token
+// Refresh mangadex access token
 export const refreshAccessToken = async (refreshToken) => {
   const creds = {
     grant_type: 'refresh_token',
@@ -46,4 +49,17 @@ export const refreshAccessToken = async (refreshToken) => {
     console.error('Error refreshing access token:', error.response?.data || error.message);
     throw error;
   }
+};
+
+export const hashPassword = async (password) => {
+  const salt = 10;
+  return await bcrypt.hash(password, salt);
+};
+
+export const comparePassword = async (password, hash) => {
+  return await bcrypt.compare(password, hash);
+};
+
+export const generateToken = (name) => {
+  return jwt.sign({name}, JWT_KEY, { expiresIn: '1d' });
 };

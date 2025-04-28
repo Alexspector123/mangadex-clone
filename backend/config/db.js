@@ -1,11 +1,20 @@
-import mongoose from "mongoose";
+import mysql from 'mysql';
 
-export const connectDB = async () => {
-    try {
-        const conn = await mongoose.connect(process.env.MONGO_URI);
-        console.log(`MongoDB Connected: ${conn.connection.host}`)
-    } catch (error) {
-        console.error(`Error: ${error.message}`);
-        process.exit(1);
-    }
+export const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "memorizex12345",
+    database: 'mangadex'
+});
+
+const connectDB = async () => {
+    db.connect(err => {
+        if (err) {
+          console.error('Database connection failed:', err.message);
+          process.exit(1);
+        }
+        console.log('Connected to MySQL Database');
+      });
 }
+
+export default connectDB;

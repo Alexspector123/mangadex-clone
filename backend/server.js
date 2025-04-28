@@ -1,11 +1,15 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import axios from 'axios';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import { connectDB } from './config/db.js';
+import connectDB from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
 import mangaRoutes from './routes/mangaRoutes.js';
 import chapterRoutes from './routes/chapterRoutes.js';
+
+const salt = 10;
 
 dotenv.config();
 
@@ -15,10 +19,18 @@ const PORT = process.env.PORT || 5000;
 let totalRequests = 0;
 let successfulRequests = 0;
 
-app.use(cors());
+connectDB();
+
+app.use(cors({
+  origin: ["http://localhost:5173"],
+  methods: ["POST", "GET"],
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Origin", "http://localhost:5173");
   res.header(
     "Access-Control-Allow-Headers",
     "Origin, X-Requested-With, Content-Type, Accept"
@@ -36,12 +48,13 @@ setInterval(() => {
   successfulRequests = 0;
 }, 1000);
 
+app.use('/api/auth', authRoutes);
 app.use('/api/manga', mangaRoutes);
 app.use('/api/chapter', chapterRoutes);
 
 const proxyLimiter = rateLimit({
-  windowMs: 1000, // 1 second window
-  max: 5, // Limit each IP to 5 requests per second
+  windowMs: 1000,
+  max: 5,
   message: { error: "Too many requests, please slow down." },
 });
 
@@ -52,7 +65,6 @@ app.get("/proxy", async (req, res) => {
   if (!apiUrl) {
     return res.status(400).json({ error: "URL parameter is required" });
   }
-
   try {
     const response = await axios.get(apiUrl, {
       headers: {
@@ -74,6 +86,5 @@ app.get("/proxy", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  connectDB();
   console.log(`Proxy server running on port ${PORT}`);
 });

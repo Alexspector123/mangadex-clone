@@ -16,10 +16,13 @@ import History from "./pages/Follows/History";
 import Manga from "./pages/Mangas/Manga";
 import ChapPage from "./pages/Chapter/ChapPage";
 import ChapLayout from "./layout/ChapLayout";
+import AuthPage from "./pages/access/AuthPage"
 import "./app.css";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
+    <>
+    <Route path="/login" element={<AuthPage />} />
     <Route path="/" element={<RootLayout />}>
       <Route index element={<HomePage />} />
       <Route path="my" element={<FollowsLayout />}>
@@ -40,6 +43,7 @@ const router = createBrowserRouter(
       </Route>
       <Route path="*" element={<ErrorPage />} />
     </Route>
+    </>
   )
 )
 

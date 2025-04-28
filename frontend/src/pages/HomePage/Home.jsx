@@ -1,8 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react'
-import { Swiper, SwiperSlide } from 'swiper/react';
+
 import { useFetchList } from '../../hooks/manga/useFetchList.jsx';
+
 import SlideCard from './SlideCard.jsx';
+
+import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Navigation } from 'swiper/modules';
+
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 
