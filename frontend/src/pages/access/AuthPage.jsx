@@ -105,7 +105,7 @@ const AuthPage = () => {
             <span className="auth-span">or use your account</span>
             <input className="auth-input" type="email" placeholder="Email" onChange={e => setSignInValues({...signInValues, email: e.target.value})} />
             <input className="auth-input" type="password" placeholder="Password" onChange={e => setSignInValues({...signInValues, password: e.target.value})} />
-            <a href="#">Forgot your password?</a>
+            <a className="auth-a" href="#">Forgot your password?</a>
             <button className="auth-button" type="submit">Sign In</button>
           </form>
         </div>

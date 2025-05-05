@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react'
+import React from 'react'
 
 import { FiArrowRight } from "react-icons/fi";
 
@@ -79,7 +79,9 @@ const SearchResultModal = ({ results, isInput, modalRef }) => {
                             </div>
                         )}
                     </div>
-
+                    {(results.manga?.length === 0) && (results.group?.length === 0) && (results.author?.length === 0) && (
+                        <p className="text-gray-500">No result found.</p>
+                    )}
                 </div>
 
             ) : (

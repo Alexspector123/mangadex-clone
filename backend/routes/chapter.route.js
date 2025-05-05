@@ -1,5 +1,5 @@
 import express from 'express';
-import { fetchChapterList, fetchChapterByID, fetchChaptersBatch, fetchChapterReader, } from '../controllers/chapterController.js';
+import { fetchChapterList, fetchChapterByID, fetchChaptersBatch, fetchChapterReader, } from '../controllers/chapter.controller.js';
 
 const router = express.Router();
 

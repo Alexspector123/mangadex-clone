@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { useFetchByID } from "../../hooks/manga/useFetchbyID.jsx";
+import useChapterList from '../../hooks/chapter/useChapterList';
 
 import { useSidebar } from "../../contexts/SidebarContext.js";
 
@@ -9,6 +10,7 @@ import { Tag } from "../../components/Tag/Tag.jsx"
 import Cover from "../../components/Manga/Cover.jsx";
 import CoverModal from "../../components/Manga/CoverModal.jsx";
 import TabNavigation from "../../components/Manga/TabNavigation.jsx";
+import ReadModal from "../../components/Modal/ReadModal.jsx";
 
 import { FaRegBookmark } from "react-icons/fa6";
 import { FaRegStar } from "react-icons/fa";
@@ -28,19 +30,39 @@ const Manga = () => {
   const { mangaData, isLoading, error } = useFetchByID(id);
   const [showMore, setShowMore] = useState(false);
 
-  const [showModal, setShowModal] = useState(false)
+  const [showModal, setShowModal] = useState(false);
+  const [showReadModal, setShowReadModal] = useState(false);
 
   const { sidebar } = useSidebar();
 
   const [searchParams] = useSearchParams();
   const tab = searchParams.get("tab") || "chapters";
 
+  const { allChapters, isLoading: isLoadingChapterList, error: ChapterListError } = useChapterList(id);
+  if (ChapterListError) return <div>Error: {ChapterListError}</div>;
+
+  // For start reading modal
+  const readModalRef = useRef();
+  useEffect(() => {
+    const handleClickOutsideDesktop = (e) => {
+      if (readModalRef.current && readModalRef.current.contains(e.target)) {
+        setShowReadModal(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutsideDesktop);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutsideDesktop);
+    };
+  }, []);
+
   if (isLoading) return <div></div>;
   if (error || !mangaData) return <div>Error: {error || "Manga not found"}</div>;
 
   return (
+    <>
+    {showReadModal && <ReadModal readModalRef={readModalRef} onClose={() => setShowReadModal(false)} allChapters={allChapters}/>}
     <div className="flex min-w-0">
-
       <div className="flex-grow relative">
         <div className="absolute inset-0 h-60 sm:h-70 md:h-[280px] w-full">
           <img
@@ -138,16 +160,19 @@ const Manga = () => {
                                   py-2 sm:hidden
                                   rounded grow
                                   text-xl
-                                  flex items-center justify-center gap-2"><IoBookOutline /><span className="text-base font-semibold">Read</span></button>
+                                  flex items-center justify-center gap-2"
+                      onClick={() => setShowReadModal(true)}><IoBookOutline /><span className="text-base font-semibold">Read</span></button>
               <button className=" bg-slate-100
                                   hidden xl:block 2xl:hidden
                                   px-2.5 py-2.5 rounded sm:px-3.5 sm:py-3.5
                                   w-[40px] sm:w-[48px]
-                                  text-xl sm:text-[20px]"><IoBookOutline /></button>
-                <button className="bg-slate-100
+                                  text-xl sm:text-[20px]"
+                      onClick={() => setShowReadModal(true)}><IoBookOutline /></button>
+              <button className="bg-slate-100
                                   py-3 px-4 hidden 2xl:flex
                                   rounded
-                                  items-center justify-center gap-2"><IoBookOutline className="text-xl" /><span className="text-base font-semibold">Start Reading</span></button>
+                                  items-center justify-center gap-2"
+                      onClick={() => setShowReadModal(true)}><IoBookOutline className="text-xl" /><span className="text-base font-semibold">Start Reading</span></button>
 
               {/*Report*/}
               <button className=" bg-slate-100
@@ -199,7 +224,7 @@ const Manga = () => {
                       <MangaTagSection data={mangaData}/>
                 </div>
                 <div className="grow flex-grow">
-                  {tab === "chapters" && <MangaChapterSection id={id}/>}
+                  {tab === "chapters" && <MangaChapterSection allChapters={allChapters}/>}
                   {tab === "art" && <ArtGallery />}
                 </div>
               </div>
@@ -210,6 +235,7 @@ const Manga = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 

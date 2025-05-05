@@ -1,62 +1,32 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import useFetchVolumebyID from '../../hooks/volume/useFetchVolumebyID';
 import ChapterItem from '../../components/Chapter/ChapterItem';
-import { useBatchChapters } from '../../hooks/chapter/useBatchChapters';
 
 import Pagination from '../../components/Panigation';
 
 const PAGE_SIZE = 20;
 
-const MangaChapterSection = ({ id }) => {
+const MangaChapterSection = ({ allChapters }) => {
   const [sortOrder, setSortOrder] = useState('desc');
-  const { volumeData, isLoading, error } = useFetchVolumebyID(id);
   const [currentPage, setCurrentPage] = useState(1);
-  if (error) return <div>Error: {error}</div>;
 
   const navigate = useNavigate();
 
-  const chapterIds = useMemo(() => {
-    if (!Array.isArray(volumeData)) return [];
-    return volumeData.flatMap(volume =>
-      Array.isArray(volume.chapters)
-        ? volume.chapters.flatMap(chap => [
-            chap.id,
-            ...(Array.isArray(chap.others) ? chap.others : [])
-          ])
-        : []
-    );
-  }, [volumeData]);
-
-  const { chapters, loading, error: chaptersError } = useBatchChapters(chapterIds);
-  if (chaptersError) return <div>Error: {chaptersError}</div>;
-
-  const chapterById = useMemo(() => new Map(chapters.map(c => [c.id, c])), [chapters]);
-
-  const allChapters = useMemo(() => {
-    if (!Array.isArray(volumeData)) return [];
-
-    const chaps = volumeData.flatMap(volume =>
-      volume.chapters.flatMap(chap => [
-        chapterById.get(chap.id),
-        ...(Array.isArray(chap.others) ? chap.others.map(id => chapterById.get(id)) : [])
-      ])
-      ).filter(Boolean);
-
-    return chaps.sort((a,b) => {
+  const sortedAllChapters = useMemo(() => {
+    return [...allChapters].sort((a,b) => {
       const aNum = parseFloat(a.chapter || '0');
       const bNum = parseFloat(b.chapter || '0');
       return sortOrder === 'asc' ? aNum - bNum : bNum - aNum;
-    })
-  }, [volumeData, chapterById, sortOrder]);
+    });
+  }, [allChapters, sortOrder]);
 
   // Apply pagination
   const paginatedChapters = useMemo(() => {
     const first = (currentPage - 1) * PAGE_SIZE;
     const last = first + PAGE_SIZE;
-    return allChapters.slice(first, last);
-  }, [allChapters, currentPage]);
+    return sortedAllChapters.slice(first, last);
+  }, [sortedAllChapters, currentPage]);
 
   const groupedByVolume = useMemo(() => {
     const volMap = new Map();

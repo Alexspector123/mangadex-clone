@@ -45,7 +45,6 @@ const SearchInputHomePage = () => {
     const handleClickOutsideDesktop = (e) => {
       if (modalRef.current && modalRef.current.contains(e.target)) {
         setIsFocused(false);
-        console.log('123');
       }
     };
 

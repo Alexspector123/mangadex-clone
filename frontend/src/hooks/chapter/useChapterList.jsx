@@ -18,6 +18,7 @@ const useChapterList = (mangaID) => {
   }, [volumeData]);
 
   const { chapters, loading: isChapterLoading, error: chapterError } = useBatchChapters(chapterIds);
+  if (chapterError) return <div>Error: {chapterError}</div>;
 
   const chapterById = useMemo(() => new Map(chapters.map(c => [c.id, c])), [chapters]);
 

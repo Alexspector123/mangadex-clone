@@ -16,7 +16,8 @@ import History from "./pages/Follows/History";
 import Manga from "./pages/Mangas/Manga";
 import ChapPage from "./pages/Chapter/ChapPage";
 import ChapLayout from "./layout/ChapLayout";
-import AuthPage from "./pages/access/AuthPage"
+import AuthPage from "./pages/access/AuthPage";
+import SearchPage from "./pages/SearchPage";
 import "./app.css";
 
 const router = createBrowserRouter(
@@ -25,6 +26,7 @@ const router = createBrowserRouter(
     <Route path="/login" element={<AuthPage />} />
     <Route path="/" element={<RootLayout />}>
       <Route index element={<HomePage />} />
+      <Route path="/search" element={<SearchPage />} />
       <Route path="my" element={<FollowsLayout />}>
         <Route path="lists" element={<MDLists />} />
         <Route path="groups" element={<MyGroup />} />

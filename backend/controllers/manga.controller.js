@@ -253,7 +253,6 @@ export const fetchMangaById = async (req, res) => {
   }
 };
 
-
 // Get chapter information by manga ID
 export const fetchVolumeListByID = async (req, res) => {
   const { id } = req.params;
@@ -344,8 +343,9 @@ export const searchManga = async (req, res) => {
       group: groupRes.data.data,
       author: authorRes.data.data,
     }
+    
+    await redis.setex(cacheKey, 60, JSON.stringify(Response));
     return res.status(200).json(Response);
-
   } catch (error) {
     console.error("Error fetching search list:", error.message);
 

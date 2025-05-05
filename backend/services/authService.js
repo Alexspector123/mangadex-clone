@@ -1,5 +1,6 @@
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const clientId = process.env.MANGADEX_CLIENT_ID;
 const clientSecret = process.env.MANGADEX_CLIENT_SECRET;

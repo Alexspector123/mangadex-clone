@@ -4,12 +4,12 @@ import dotenv from 'dotenv';
 import axios from 'axios';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
-import connectDB from './config/db.js';
-import authRoutes from './routes/authRoutes.js';
-import mangaRoutes from './routes/mangaRoutes.js';
-import chapterRoutes from './routes/chapterRoutes.js';
 
-const salt = 10;
+import connectDB from './config/db.js';
+
+import authRoutes from './routes/auth.route.js';
+import mangaRoutes from './routes/manga.route.js';
+import chapterRoutes from './routes/chapter.route.js';
 
 dotenv.config();
 

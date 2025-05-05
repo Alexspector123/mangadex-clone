@@ -1,5 +1,5 @@
 import express from 'express';
-import { fetchMangaList, fetchMangaById, fetchVolumeListByID, searchManga } from '../controllers/mangaController.js';
+import { fetchMangaList, fetchMangaById, fetchVolumeListByID, searchManga } from '../controllers/manga.controller.js';
 
 const router = express.Router();
 
