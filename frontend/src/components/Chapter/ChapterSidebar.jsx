@@ -31,23 +31,22 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
 
   const groupedChapter = useMemo(() => {
     if (!Array.isArray(allChapters) || !chapterData) return null;
-    const sameGroupAndLanguage = allChapters.filter(
-      chap => chap.group === chapterData.groupName && chap.translatedLanguage === chapterData.translatedLanguage
-    );
-    
-    if (sameGroupAndLanguage) {
-      return sameGroupAndLanguage;
-    }
-    
     const sameLanguage = allChapters.filter(
       chap => chap.translatedLanguage === chapterData.translatedLanguage
     );
-    
-    if (sameLanguage) {
-      return sameLanguage;
-    }
-    
-    return null;
+    const chapterMap = new Map();
+    sameLanguage.forEach(chap => {
+      const chapNumber = chap.chapter;
+      if (!chapterMap.has(chapNumber)) {
+        chapterMap.set(chapNumber, chap);
+      } else {
+        const existing = chapterMap.get(chapNumber);
+        if (existing.group !== chapterData.groupName && chap.group === chapterData.groupName) {
+          chapterMap.set(chapNumber, chap);
+        }
+      }
+    });
+    return Array.from(chapterMap.values()).sort((a, b) => parseFloat(a.chapter) - parseFloat(b.chapter));
   }, [allChapters, chapterData]);
 
     const nextChapter = useMemo(() => {
@@ -87,6 +86,8 @@ const ChapterSidebar = ({ closeSidebar, toggleHeader }) => {
         navigate(`/chapter/${prevChapter.id}/1`);
       }
     }
+
+    console.log('Grouped Chapter:', groupedChapter);
 
   return (
     <>

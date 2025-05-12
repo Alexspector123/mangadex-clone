@@ -4,7 +4,10 @@ import { IoClose } from "react-icons/io5";
 
 import ChapterItem from '../Chapter/ChapterItem';
 
+import { useNavigate } from 'react-router-dom';
+
 const ReadModal = ({ readModalRef, onClose, allChapters }) => {
+    const navigate = useNavigate();
     const firstChapList = useMemo(() => {
         const list = allChapters.filter(
             chap => chap.chapter === "1"
@@ -44,7 +47,7 @@ const ReadModal = ({ readModalRef, onClose, allChapters }) => {
                     href={`/chapter/${chap.id}/1`}
                     onClick={(e) => {
                         e.preventDefault();
-                        Navigate(`/chapter/${chap.id}/1`);
+                        navigate(`/chapter/${chap.id}/1`);
                     }}
                     >
                         <ChapterItem data={chap}/>
