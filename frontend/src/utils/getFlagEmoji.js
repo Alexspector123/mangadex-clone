@@ -7,6 +7,8 @@ export const getFlagUrl = (langCode) => {
       es: 'es',
       'pt-br': 'br',
       id: 'id',
+      'es-la': 'mx',
+      fa: 'ir',
     };
   
     const countryCode = map[langCode.toLowerCase()] || 'us';

@@ -37,7 +37,7 @@ export const fetchChapterList = async (req, res) => {
       const mangaID = mangaRel?.id;
       const groupID = groupRel?.id;
 
-      const mangaRes = await axios.get(`https://api.mangadex.org/manga/${mangaID}`);
+      const mangaRes = await mangadexLimiter.schedule(() => axios.get(`https://api.mangadex.org/manga/${mangaID}`));
       const mangaTitle = Object.values(mangaRes.data.data.attributes.title)[0];
 
       const coverRel = mangaRes.data.data.relationships.find(rel => rel.type === 'cover_art');
