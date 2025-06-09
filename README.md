@@ -50,3 +50,15 @@ npm install tailwindcss @tailwindcss/vite
 npm run dev
 ```
 Now, open your browser and go to http://localhost:5173/ to view the project.
+
+---
+
+## Screenshot
+
+### Home Page
+
+![Home Screenshot](frontend/public/screenshot/homepage.png)
+
+### Read Page
+
+![Read Manga Screenshot](frontend/public/screenshot/readpage.png)
