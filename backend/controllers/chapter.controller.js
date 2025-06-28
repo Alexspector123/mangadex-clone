@@ -223,4 +223,41 @@ export const fetchChapterReader = async (req, res) => {
   }
 };
 
+export const addChapter = async (req, res) => {
+  try {
+    const { manga_id, chapter_number, chapter_title, translatedLanguage } = req.body;
+    const uploader_id = req.user.userId;
+
+    const [chapterResult] = await db.execute(
+      "INSERT INTO Chapter (manga_id, chapter_number, title, translated_language, uploader_id) VALUES (?, ?, ?, ?, ?)",
+      [manga_id, chapter_number, chapter_title || null, translatedLanguage, uploader_id]
+    );
+
+    const chapter_id = chapterResult.insertId;
+
+    const files = req.files.pages;
+    if (!files || files.length === 0) {
+      return res.status(400).json({ message: "No image is ready to upload" });
+    }
+
+    const insertPagesPromises = files.map((file, index) =>
+      db.execute(
+        "INSERT INTO Page (chapter_id, page_number, image_url, public_id) VALUES (?, ?, ?, ?)",
+        [chapter_id, index + 1, file.path, file.filename || file.public_id]
+      )
+    );
+
+    await Promise.all(insertPagesPromises);
+
+    res.status(201).json({
+      message: "Upload chapter success",
+      chapter_id,
+      pages_uploaded: files.length,
+    });
+  } catch (error) {
+    console.error("Upload chapter error:", error);
+    res.status(500).json({ message: "Error when upload chapter", error: error.message });
+  }
+}
+
 export default fetchChapterList;

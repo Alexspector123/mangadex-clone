@@ -357,4 +357,40 @@ export const searchManga = async (req, res) => {
   }
 }
 
+export const addManga = async (req, res) => {
+  try {
+    const { title, status, country, moviepage_id  } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ message: "Missing manga title" });
+    }
+
+    const [existing] = await db.execute("SELECT * FROM Manga WHERE title = ?", [title]);
+    if (existing.length > 0) {
+      return res.status(409).json({ message: "Manga is existed" });
+    }
+
+    const [rows] = await db.execute("SELECT manga_id FROM Manga WHERE title = ?", [title]);
+    if (rows.length > 0) {
+      return res.status(409).json({ message: "Manga is existed in database" });
+    }
+
+    // Handle image upload
+    const imageUrl = req.file ? req.file.path : null;
+    // Insert new manga
+    const [result] = await db.execute(
+      "INSERT INTO Manga (title, cover_url, status, country, moviepage_id) VALUES (?, ?, ?, ?, ?)",
+      [title, imageUrl, status || "ongoing", country, moviepage_id]
+    );
+
+    res.status(201).json({
+      manga_id: result.insertId,
+      cover_url: imageUrl,
+    });
+  } catch (err) {
+    console.error("Upload error:", err);
+    res.status(500).json({ message: "Upload failed!", error: err.message });
+  }
+};
+
 export default fetchMangaList;
