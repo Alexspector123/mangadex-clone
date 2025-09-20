@@ -1,14 +1,14 @@
-import axios from 'axios';
-import Redis from 'ioredis';
-import mangadexLimiter from '../utils/rateLimiter.js';
-import { toRelativeTime } from '../utils/toRelativeTime.js';
+import axios from "axios";
+import Redis from "ioredis";
+import mangadexLimiter from "../utils/rateLimiter.js";
+import { toRelativeTime } from "../utils/toRelativeTime.js";
 
-const redis = new Redis(); // Connect to Redis
+const redis = new Redis(process.env.REDIS_URL); // Connect to Redis
 
 // Get chapter list information
 export const fetchChapterList = async (req, res) => {
   try {
-    const { limit = 10, order = 'desc' } = req.query;
+    const { limit = 10, order = "desc" } = req.query;
     const queryString = `limit=${limit}&order[${order}]=desc`;
 
     const cacheKey = `chapterList:${queryString}`;
@@ -23,46 +23,60 @@ export const fetchChapterList = async (req, res) => {
     const response = await mangadexLimiter.schedule(() =>
       axios.get(`https://api.mangadex.org/chapter?${queryString}`, {
         headers: {
-          'User-Agent': 'YourAppName/1.0 (alexspector8766@gmail.com)',
+          "User-Agent": "YourAppName/1.0 (alexspector8766@gmail.com)",
         },
       })
     );
 
     const chapterList = response.data.data;
 
-    const fullData = await Promise.all(chapterList.map(async (chapter) => {
-      const mangaRel = chapter.relationships.find(r => r.type === 'manga');
-      const groupRel = chapter.relationships.find(r => r.type === 'scanlation_group');
+    const fullData = await Promise.all(
+      chapterList.map(async (chapter) => {
+        const mangaRel = chapter.relationships.find((r) => r.type === "manga");
+        const groupRel = chapter.relationships.find(
+          (r) => r.type === "scanlation_group"
+        );
 
-      const mangaID = mangaRel?.id;
-      const groupID = groupRel?.id;
+        const mangaID = mangaRel?.id;
+        const groupID = groupRel?.id;
 
-      const mangaRes = await mangadexLimiter.schedule(() => axios.get(`https://api.mangadex.org/manga/${mangaID}`));
-      const mangaTitle = Object.values(mangaRes.data.data.attributes.title)[0];
+        const mangaRes = await mangadexLimiter.schedule(() =>
+          axios.get(`https://api.mangadex.org/manga/${mangaID}`)
+        );
+        const mangaTitle = Object.values(
+          mangaRes.data.data.attributes.title
+        )[0];
 
-      const coverRel = mangaRes.data.data.relationships.find(rel => rel.type === 'cover_art');
-      const coverID = coverRel?.id;
-      const coverRes = await axios.get(`https://api.mangadex.org/cover/${coverID}`);
-      const coverFileName = coverRes.data.data.attributes.fileName;
-      const coverUrl = `https://uploads.mangadex.org/covers/${mangaID}/${coverFileName}`;
+        const coverRel = mangaRes.data.data.relationships.find(
+          (rel) => rel.type === "cover_art"
+        );
+        const coverID = coverRel?.id;
+        const coverRes = await axios.get(
+          `https://api.mangadex.org/cover/${coverID}`
+        );
+        const coverFileName = coverRes.data.data.attributes.fileName;
+        const coverUrl = `https://uploads.mangadex.org/covers/${mangaID}/${coverFileName}`;
 
-      let groupName = '';
-      if (groupID) {
-        const groupRes = await axios.get(`https://api.mangadex.org/group/${groupID}`);
-        groupName = groupRes.data.data.attributes.name;
-      }
+        let groupName = "";
+        if (groupID) {
+          const groupRes = await axios.get(
+            `https://api.mangadex.org/group/${groupID}`
+          );
+          groupName = groupRes.data.data.attributes.name;
+        }
 
-      return {
-        mangaID,
-        mangaTitle,
-        coverUrl,
-        chapter: chapter.attributes.chapter,
-        volume: chapter.attributes.volume,
-        language: chapter.attributes.translatedLanguage,
-        group: groupName,
-        updatedAt: toRelativeTime(chapter.attributes.readableAt),
-      };
-    }));
+        return {
+          mangaID,
+          mangaTitle,
+          coverUrl,
+          chapter: chapter.attributes.chapter,
+          volume: chapter.attributes.volume,
+          language: chapter.attributes.translatedLanguage,
+          group: groupName,
+          updatedAt: toRelativeTime(chapter.attributes.readableAt),
+        };
+      })
+    );
 
     // Cache result for 60 seconds
     await redis.setex(cacheKey, 60, JSON.stringify(fullData));
@@ -72,10 +86,14 @@ export const fetchChapterList = async (req, res) => {
     console.error("Error fetching chapter list:", error.message);
 
     if (error.response?.status === 429) {
-      return res.status(429).json({ error: 'Rate limit exceeded. Please wait and try again.' });
+      return res
+        .status(429)
+        .json({ error: "Rate limit exceeded. Please wait and try again." });
     }
 
-    return res.status(500).json({ error: 'An error occurred while fetching chapter data.' });
+    return res
+      .status(500)
+      .json({ error: "An error occurred while fetching chapter data." });
   }
 };
 // Get specific chapter information
@@ -89,10 +107,10 @@ export const fetchChapterByID = async (req, res) => {
       return res.status(200).json(JSON.parse(cachedData));
     }
 
-    const chapterRes = await mangadexLimiter.schedule(() => 
+    const chapterRes = await mangadexLimiter.schedule(() =>
       axios.get(`https://api.mangadex.org/chapter/${id}`, {
         headers: {
-          'User-Agent' : 'YourAppName/1.0 (alexspector8766@gmail.com)',
+          "User-Agent": "YourAppName/1.0 (alexspector8766@gmail.com)",
         },
       })
     );
@@ -105,18 +123,24 @@ export const fetchChapterByID = async (req, res) => {
 
     const updatedAt = toRelativeTime(chapter.attributes.readableAt);
 
-    const mangaRel = chapter.relationships.find(r => r.type === 'manga');
-    const groupRel = chapter.relationships.find(r => r.type === 'scanlation_group');
+    const mangaRel = chapter.relationships.find((r) => r.type === "manga");
+    const groupRel = chapter.relationships.find(
+      (r) => r.type === "scanlation_group"
+    );
 
     const mangaID = mangaRel?.id;
     const groupID = groupRel?.id;
 
-    const mangaRes = await axios.get(`https://api.mangadex.org/manga/${mangaID}`);
+    const mangaRes = await axios.get(
+      `https://api.mangadex.org/manga/${mangaID}`
+    );
     const mangaTitle = Object.values(mangaRes.data.data.attributes.title)[0];
 
-    let groupName = '';
+    let groupName = "";
     if (groupID) {
-      const groupRes = await axios.get(`https://api.mangadex.org/group/${groupID}`);
+      const groupRes = await axios.get(
+        `https://api.mangadex.org/group/${groupID}`
+      );
       groupName = groupRes.data.data.attributes.name;
     }
 
@@ -131,40 +155,45 @@ export const fetchChapterByID = async (req, res) => {
       translatedLanguage,
       mangaID,
       mangaTitle,
-    }
+    };
 
     await redis.setex(cacheKey, 60, JSON.stringify(chapterData));
     return res.status(200).json(chapterData);
-
   } catch (error) {
-    console.error('Error fetching manga by ID:', error.message);
-    return res.status(500).json({ error: 'Failed to fetch manga by ID.' });
+    console.error("Error fetching manga by ID:", error.message);
+    return res.status(500).json({ error: "Failed to fetch manga by ID." });
   }
 };
 // Get chapter list base on id list
 export const fetchChaptersBatch = async (req, res) => {
   const { ids } = req.body;
   if (!Array.isArray(ids)) {
-    return res.status(400).json({ error: 'Request body must be { ids: string[] }' });
+    return res
+      .status(400)
+      .json({ error: "Request body must be { ids: string[] }" });
   }
 
   try {
     // schedule and dedupe via your limiter
     const results = await Promise.all(
-      ids.map(id =>
+      ids.map((id) =>
         mangadexLimiter.schedule(() =>
           axios
             .get(`https://api.mangadex.org/chapter/${id}`, {
-              headers: { 'User-Agent': 'YourApp/1.0 (email@example.com)' },
+              headers: { "User-Agent": "YourApp/1.0 (email@example.com)" },
             })
-            .then(async r => {
+            .then(async (r) => {
               const d = r.data.data;
 
-              const groupRel = d.relationships.find(r => r.type === 'scanlation_group');
+              const groupRel = d.relationships.find(
+                (r) => r.type === "scanlation_group"
+              );
               const groupID = groupRel?.id;
-              let groupName = '';
+              let groupName = "";
               if (groupID) {
-                const groupRes = await axios.get(`https://api.mangadex.org/group/${groupID}`);
+                const groupRes = await axios.get(
+                  `https://api.mangadex.org/group/${groupID}`
+                );
                 groupName = groupRes.data.data.attributes.name;
               }
 
@@ -186,8 +215,8 @@ export const fetchChaptersBatch = async (req, res) => {
     // filter out any nulls
     res.json(results.filter(Boolean));
   } catch (err) {
-    console.error('Batch chapters error:', err);
-    res.status(500).json({ error: 'Failed to fetch chapters batch' });
+    console.error("Batch chapters error:", err);
+    res.status(500).json({ error: "Failed to fetch chapters batch" });
   }
 };
 // Get chapter to read
@@ -198,15 +227,18 @@ export const fetchChapterReader = async (req, res) => {
     const cacheKey = `chapterReader:${id}`;
 
     const cachedData = await redis.get(cacheKey);
-    if(cachedData) {
+    if (cachedData) {
       return res.status(200).json(JSON.parse(cachedData));
     }
     const chapterReaderRes = await mangadexLimiter.schedule(() =>
-      axios.get(`https://api.mangadex.org/at-home/server/${id}?forcePort443=true`,{
-        headers: {
-          'User-Agent' : 'YourAppName/1.0 (alexspector8766@gmail.com)',
+      axios.get(
+        `https://api.mangadex.org/at-home/server/${id}?forcePort443=true`,
+        {
+          headers: {
+            "User-Agent": "YourAppName/1.0 (alexspector8766@gmail.com)",
+          },
         }
-      })
+      )
     );
 
     const chapterReader = chapterReaderRes.data;
@@ -218,19 +250,28 @@ export const fetchChapterReader = async (req, res) => {
     await redis.setex(cacheKey, 60, JSON.stringify(chapterReaderData));
     return res.status(200).json(chapterReaderData);
   } catch (error) {
-    console.error('Error fetching manga reader by ID:', error.message);
-    return res.status(500).json({ error: 'Failed to fetch manga reader by ID.' });
+    console.error("Error fetching manga reader by ID:", error.message);
+    return res
+      .status(500)
+      .json({ error: "Failed to fetch manga reader by ID." });
   }
 };
 
 export const addChapter = async (req, res) => {
   try {
-    const { manga_id, chapter_number, chapter_title, translatedLanguage } = req.body;
+    const { manga_id, chapter_number, chapter_title, translatedLanguage } =
+      req.body;
     const uploader_id = req.user.userId;
 
     const [chapterResult] = await db.execute(
       "INSERT INTO Chapter (manga_id, chapter_number, title, translated_language, uploader_id) VALUES (?, ?, ?, ?, ?)",
-      [manga_id, chapter_number, chapter_title || null, translatedLanguage, uploader_id]
+      [
+        manga_id,
+        chapter_number,
+        chapter_title || null,
+        translatedLanguage,
+        uploader_id,
+      ]
     );
 
     const chapter_id = chapterResult.insertId;
@@ -256,8 +297,10 @@ export const addChapter = async (req, res) => {
     });
   } catch (error) {
     console.error("Upload chapter error:", error);
-    res.status(500).json({ message: "Error when upload chapter", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error when upload chapter", error: error.message });
   }
-}
+};
 
 export default fetchChapterList;
