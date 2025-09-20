@@ -4,7 +4,7 @@ import useFetchbyTitle from "../../hooks/manga/useFetchbyTitle";
 const AdvancedSearch = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [queryParams, setQueryParams] = useState(null);
-  const { mangaData, error, isLoading } = useFetchbyTitle(queryParams);
+  const { mangaData, error } = useFetchbyTitle(queryParams);
 
   const handleSearch = (e) => {
     e.preventDefault();
