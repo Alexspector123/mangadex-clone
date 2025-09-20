@@ -1,5 +1,10 @@
 import ReactDOM from "react-dom/client";
-import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from "react-router-dom";
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+} from "react-router-dom";
 import RootLayout from "./layout/RootLayout";
 import HomePage from "./pages/HomePage/HomePage";
 import ErrorPage from "./pages/ErrorPage";
@@ -18,43 +23,42 @@ import ChapPage from "./pages/Chapter/ChapPage";
 import ChapLayout from "./layout/ChapLayout";
 import AuthPage from "./pages/access/AuthPage";
 import SearchPage from "./pages/SearchPage";
-import "./app.css";
+import "./App.css";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <>
-    <Route path="/login" element={<AuthPage />} />
-    <Route path="/" element={<RootLayout />}>
-      <Route index element={<HomePage />} />
-      <Route path="/search" element={<SearchPage />} />
-      <Route path="my" element={<FollowsLayout />}>
-        <Route path="lists" element={<MDLists />} />
-        <Route path="groups" element={<MyGroup />} />
-        <Route path="history" element={<History />} />
+      <Route path="/login" element={<AuthPage />} />
+      <Route path="/" element={<RootLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="/search" element={<SearchPage />} />
+        <Route path="my" element={<FollowsLayout />}>
+          <Route path="lists" element={<MDLists />} />
+          <Route path="groups" element={<MyGroup />} />
+          <Route path="history" element={<History />} />
+        </Route>
+        <Route path="titles" element={<TitlesLayout />}>
+          <Route path="recent" element={<RecentlyAdded />} />
+          <Route path="lastest" element={<LastestUpdates />} />
+          <Route path="random" element={<Random />} />
+          <Route path="feed" element={<Updates />} />
+          <Route path="follows" element={<Library />} />
+          <Route path=":id" element={<Manga />} />
+        </Route>
+        <Route path="chapter" element={<ChapLayout />}>
+          <Route path=":id/:page" element={<ChapPage />} />
+        </Route>
+        <Route path="*" element={<ErrorPage />} />
       </Route>
-      <Route path="titles" element={<TitlesLayout />}> 
-        <Route path="recent" element={<RecentlyAdded />} />
-        <Route path="lastest" element={<LastestUpdates />} />
-        <Route path="random" element={<Random />} />
-        <Route path="feed" element={<Updates />} />
-        <Route path="follows" element={<Library />} />
-        <Route path=":id" element= {<Manga/>} />
-      </Route>
-      <Route path="chapter" element={<ChapLayout />}>
-        <Route path=":id/:page" element={<ChapPage />}/>
-      </Route>
-      <Route path="*" element={<ErrorPage />} />
-    </Route>
     </>
   )
-)
+);
 
 export default function App() {
   return (
     <div className="font-sans">
-      <RouterProvider router = {router}/>
+      <RouterProvider router={router} />
     </div>
-
   );
 }
 
