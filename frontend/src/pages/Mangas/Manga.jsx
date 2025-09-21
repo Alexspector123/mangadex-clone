@@ -21,7 +21,7 @@ import { LuFlag } from "react-icons/lu";
 import { FiUpload } from "react-icons/fi";
 import { GoDotFill } from "react-icons/go";
 
-import MangaTagSection from "./MangaTagSection.jsx";
+import MangaTagSection from "./MangaTagSection";
 import ArtGallery from "./ArtGallery.jsx";
 import MangaChapterSection from "./MangaChapterSection.jsx";
 
