@@ -16,7 +16,7 @@
     "axios-retry": "^4.5.0",
     "bcrypt": "^5.1.1",
     "bottleneck": "^2.19.5",
-    "cloudinary": "^2.6.1",
+    "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
